@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "362169221609",
+    "project_id": "challista-beauty-salon",
+    "storage_bucket": "challista-beauty-salon.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:362169221609:android:8200fcc599a0abeb7fcb78",
+        "android_client_info": {
+          "package_name": "com.example.supabase_auth"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "362169221609-5cnk1qv18bfntsp7vkdujmko8el567e9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDUJHYqDx1hJIaPeU7VEYOTUhy_xCjSMVQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "362169221609-5cnk1qv18bfntsp7vkdujmko8el567e9.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

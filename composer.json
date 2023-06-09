@@ -1,0 +1,6 @@
+{
+    "require": {
+        "supabase/supabase-php": "^0.0.1",
+        "google/apiclient": "2.14"
+    }
+}
