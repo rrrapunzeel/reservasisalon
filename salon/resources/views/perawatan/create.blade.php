@@ -1,38 +1,65 @@
-<!-- resources/views/perawatan/create.blade.php -->
+@extends('layouts.mainlayout')
+@extends('layouts.formlayout')
 
-@extends('layouts.app')
-
+@section('title', 'Perawatan')
 @section('content')
-    <div class="container mx-auto">
-        <h1 class="text-2xl font-bold mb-4">Tambah Perawatan</h1>
+    <div class="pagetitle">
+        <h1>Tambah Data</h1>
+        <nav>
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ route('dashboard.view') }}">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="{{ route('perawatan.index') }}">Perawatan</a></li>
+                <li class="breadcrumb-item active">Tambah</li>
+            </ol>
+        </nav>
+    </div><!-- End Page Title -->
+    <section class="section">
+        <div class="row">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Perawatan</h5>
+                    @if(session('success'))
+                        <div class="alert alert-success mt-3">
+                            {{ session('success') }}
+                        </div>
+                    @endif
+                    <form action="{{ route('perawatan.store') }}" method="POST">
+                        @csrf
+                        <div class="row mb-3">
+                            <label for="id_kategori" class="col-sm-2 col-form-label">Kategori</label>
+                            <div class="col-sm-10">
+                                <select class="form-control" id="id_kategori" name="id_kategori">
+                                    @if (is_array($kategoris) || is_object($kategoris))
+                                        @foreach($kategoris as $kategori)
+                                        <option value="{{ $kategori->id_kategori }}">{{ $kategori->nama_kategori }}</option>
 
-        <form action="{{ url('/perawatan/insert') }}" method="POST">
-            @csrf
+                                        @endforeach
+                                    @endif
+                                </select>
+                            </div>
+                        </div>
 
-            <div class="mb-4">
-                <label for="id_kategori" class="block text-gray-700 text-sm font-bold mb-2">Kategori:</label>
-                <select name="id_kategori" id="id_kategori" class="border border-gray-300 rounded py-2 px-4">
-                    <!-- Populate options with categories data -->
-                    @foreach ($categories as $category)
-                        <option value="{{ $category->id_kategori }}">{{ $category->nama_kategori }}</option>
-                    @endforeach
-                </select>
+                        <div class="row mb-3">
+                            <label for="nama_perawatan" class="col-sm-2 col-form-label">Nama Perawatan</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" id="nama_perawatan" name="nama_perawatan" required>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <label for="harga_perawatan" class="col-sm-2 col-form-label">Harga Perawatan</label>
+                            <div class="col-sm-10">
+                                <input type="number" class="form-control" id="harga_perawatan" name="harga_perawatan" required>
+                            </div>
+                        </div>
+
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-primary">Simpan</button>
+                        </div>
+                    </form>
+                    <!-- End Horizontal Form -->
+                </div>
             </div>
-
-            <div class="mb-4">
-                <label for="nama_perawatan" class="block text-gray-700 text-sm font-bold mb-2">Nama Perawatan:</label>
-                <input type="text" name="nama_perawatan" id="nama_perawatan" class="border border-gray-300 rounded py-2 px-4" required>
-            </div>
-
-            <div class="mb-4">
-                <label for="harga_perawatan" class="block text-gray-700 text-sm font-bold mb-2">Harga Perawatan:</label>
-                <input type="number" name="harga_perawatan" id="harga_perawatan" class="border border-gray-300 rounded py-2 px-4" required>
-            </div>
-
-            <div class="mb-4">
-                <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Save</button>
-                <a href="{{ url('/perawatan/select') }}" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-2 px-4 rounded">Cancel</a>
-            </div>
-        </form>
-    </div>
+        </div>
+    </section>
 @endsection

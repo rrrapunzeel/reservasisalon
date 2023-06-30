@@ -3,9 +3,9 @@ import 'package:get/get.dart';
 import 'package:supabase_auth/controllers/user.dart';
 import 'package:supabase_auth/core/utils/color_constant.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:supabase_auth/controllers/user.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../models/userModel.dart';
 
@@ -29,7 +29,8 @@ class _ProfilePageState extends State<ProfilePage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: ColorConstant.pink300,
-        title: const Text("Profile"),
+        centerTitle: true,
+        title: const Text("Edit Profile"),
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -137,6 +138,4 @@ class _ProfilePageState extends State<ProfilePage> {
       ),
     );
   }
-
-  final _connect = GetConnect();
 }

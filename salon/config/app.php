@@ -77,7 +77,7 @@ return [
     |--------------------------------------------------------------------------
     |
     | The application locale determines the default locale that will be used
-    | by the translation service 
+    | by the translation service
     der. You are free to set this value
     | to any of the locales which will be supported by the application.
     |
@@ -182,6 +182,7 @@ return [
         Illuminate\Translation\TranslationServiceProvider::class,
         Illuminate\Validation\ValidationServiceProvider::class,
         Illuminate\View\ViewServiceProvider::class,
+        Berkayk\OneSignal\OneSignalServiceProvider::class,
 
 
         /*
@@ -210,8 +211,9 @@ return [
     |
     */
 
-    'aliases' => Facade::defaultAliases()->merge([
-        // 'ExampleClass' => App\Example\ExampleClass::class,
+    'aliases' => 
+    Facade::defaultAliases()->merge([
+        'OneSignal' => Berkayk\OneSignal\OneSignalFacade::class,
     ])->toArray(),
     
 

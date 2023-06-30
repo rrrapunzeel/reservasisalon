@@ -1,30 +1,63 @@
-<?php
+<?
+namespace App;
 
+use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
 
-namespace App\Http\Models;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-
-class User extends Model
+class User extends Authenticatable implements MustVerifyEmail
 {
-    use HasFactory;
+    use Notifiable;
 
-    protected $table = 'user'; // Name of the table
-
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array
+     */
     protected $fillable = [
-        'id',
-        'updated_at',
-        'email',
-        'nama',
-        'avatar_url',
-        'nomor_telepon',
-        'role',
-        'status',
+        'name', 'email', 'password', 'google_id', 'avatar',
     ];
 
-    // Optional: If your primary key is not "id" column, specify it here
-    // protected $primaryKey = 'custom_id';
+    /**
+     * The attributes that should be hidden for arrays.
+     *
+     * @var array
+     */
+    protected $hidden = [
+        'password', 'remember_token',
+    ];
 
-    // Optional: If you don't have timestamps columns in the table, set this to false
-    // public $timestamps = false;
+    /**
+     * The attributes that should be cast to native types.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+    ];
+
+    /**
+     * Find or create a user based on Google login.
+     *
+     * @param  string  $googleId
+     * @param  string  $name
+     * @param  string  $email
+     * @param  string|null  $avatar
+     * @return User
+     */
+    public static function findOrCreateGoogleUser($googleId, $name, $email, $avatar = null)
+    {
+        $user = User::where('google_id', $googleId)->first();
+
+        if ($user) {
+            return $user;
+        }
+
+        return User::create([
+            'google_id' => $googleId,
+            'name' => $name,
+            'email' => $email,
+            'avatar' => $avatar,
+        ]);
+    }
 }

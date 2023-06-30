@@ -2,8 +2,13 @@
 module.exports = {
   content: [],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        pink: {
+          DEFAULT: '#FFC0CB', 
+        },
+      },
+    },
   },
   plugins: [],
 }
-

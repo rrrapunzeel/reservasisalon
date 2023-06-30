@@ -1,11 +1,34 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:supabase_auth/models/reservasi.dart';
+import 'package:supabase_auth/models/pembayaran.dart';
 
 class ReservasiRepository {
   final supabase = SupabaseClient(
     'https://fuzdyyktvczvrbwrjkhe.supabase.co',
     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ1emR5eWt0dmN6dnJid3Jqa2hlIiwicm9sZSI6ImFub24iLCJpYXQiOjE2NzI0MTA4ODcsImV4cCI6MTk4Nzk4Njg4N30.kMVUSwTCDMLEM-8ePXPXniT62zkB75Q3gvyvuAbkibU',
   );
+
+  Future<bool> createReservasi(Reservasi reservasi) async {
+    try {
+      final response = await supabase.from('reservasi').insert([
+        {
+          'date': reservasi.date!.toIso8601String(),
+          'id_time_slots': reservasi.idTimeSlots,
+        }
+      ]).execute();
+      if (response.error != null) {
+        // Error saat membuat reservasi
+        print('Error creating reservasi: ${response.error?.message}');
+        return false;
+      }
+      // Reservasi berhasil dibuat
+      return true;
+    } catch (e) {
+      // Tangani kesalahan saat membuat reservasi
+      print('Error creating reservasi: $e');
+      return false;
+    }
+  }
 
   Future<List<Reservasi>> getReservasi() async {
     final response = await supabase.from('reservasi').select().execute();
@@ -18,6 +41,27 @@ class ReservasiRepository {
     final reservasi = data.map((json) => Reservasi.fromJson(json)).toList();
 
     return reservasi;
+  }
+
+  Future<List<Pembayaran>> getHalamanReservasi() async {
+    final response = await supabase
+        .from('pembayaran')
+        .select()
+        .order('id', ascending: false)
+        .limit(3)
+        .execute();
+    if (response.error != null) {
+      throw response.error?.message ?? "Unknown error occurred";
+    }
+
+    final data = response.data as List<dynamic>;
+    final bookings = data.map((json) => Pembayaran.fromJson(json)).toList();
+
+    if (bookings.contains(null)) {
+      throw "Invalid or null values found in the data";
+    }
+
+    return bookings;
   }
 
   Future<List<Reservasi>> getTimeSlotId(int timeSlotId_) async {

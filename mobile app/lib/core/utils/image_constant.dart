@@ -19,6 +19,8 @@ class ImageConstant {
   static String imgArrowleftPink300 =
       'assets/images/img_arrowleft_pink_300.svg';
 
+  static String imgPreview = 'assets/images/preview.png';
+
   static String imgTabmen = 'assets/images/img_tabmen.png';
 
   static String imgHomeGray500 = 'assets/images/img_home_gray_500.svg';

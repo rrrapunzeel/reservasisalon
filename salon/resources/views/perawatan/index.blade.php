@@ -1,41 +1,63 @@
-<!-- resources/views/perawatan/index.blade.php -->
+@extends('layouts.mainlayout')
 
-@extends('layouts.app')
+@section('title', 'Perawatan')
 
 @section('content')
-    <div class="container mx-auto">
-        <h1 class="text-2xl font-bold mb-4">Daftar Perawatan</h1>
 
-        <a href="{{ url('/perawatan/create') }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4">Tambah Perawatan</a>
+<div class="pagetitle">
+    <h1>Perawatan</h1>
+    <nav>
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ route ('dashboard.view')}}">Dashboard</a></li>
+        <li class="breadcrumb-item">Perawatan</li>
+      </ol>
+    </nav>
+</div>
+<div class="card">
+    <div class="card-body">
+        <h5 class="card-title">Data Perawatan</h5>
+        <a href="{{ route('perawatan.create') }}" class="btn btn-primary mb-3">Tambah Perawatan</a>
 
-        <table class="border-collapse border border-gray-300">
+        <div class="table-responsive">
+        <!-- Table with stripped rows -->
+        <table class="table table-borderless datatable">
+            
             <thead>
                 <tr>
-                    <th class="border border-gray-300 py-2 px-4">ID</th>
-                    <th class="border border-gray-300 py-2 px-4">Kategori</th>
-                    <th class="border border-gray-300 py-2 px-4">Nama Perawatan</th>
-                    <th class="border border-gray-300 py-2 px-4">Harga Perawatan</th>
-                    <th class="border border-gray-300 py-2 px-4">Aksi</th>
+                    <th scope="col">#</th>
+                    <th scope="col">Kategori</th>
+                    <th scope="col">Nama Perawatan</th>
+                    <th scope="col">Harga</th>
+                    <th scope="col">Aksi</th>
                 </tr>
             </thead>
             <tbody>
-                @foreach ($perawatans as $perawatan)
-                    <tr>
-                        <td class="border border-gray-300 py-2 px-4">{{ $perawatan->id_perawatan }}</td>
-                        <td class="border border-gray-300 py-2 px-4">{{ $perawatan->kategori->nama_kategori }}</td>
-                        <td class="border border-gray-300 py-2 px-4">{{ $perawatan->nama_perawatan }}</td>
-                        <td class="border border-gray-300 py-2 px-4">{{ $perawatan->harga_perawatan }}</td>
-                        <td class="border border-gray-300 py-2 px-4">
-                            <a href="{{ url('/perawatan/edit', $perawatan->id_perawatan) }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Edit</a>
-                            <form action="{{ url('/perawatan/delete', $perawatan->id_perawatan) }}" method="POST" class="inline-block">
+            @foreach($perawatans as $perawatan)
+                <tr>
+                <th scope="row">{{ $loop->iteration }}</th>
+                    <td>
+                        @foreach ($kategoris as $kategori)
+                            @if ($kategori['id_kategori'] === $perawatan['id_kategori'])
+                                {{ $kategori['nama_kategori'] }}
+                            @endif
+                        @endforeach
+                    </td>
+                    <td>{{ $perawatan['nama_perawatan'] }}</td>
+                    <td>{{ $perawatan['harga_perawatan'] }}</td>
+                    <td>
+                            <a href="{{ route('perawatan.update', $perawatan['id_perawatan']) }}" class="btn btn-outline-primary"><i class="bi bi-pencil-fill"></i></a>
+                            <form action="{{ route('perawatan.delete', $perawatan['id_perawatan']) }}" method="POST" class="d-inline">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">Delete</button>
+                                <button type="submit" class="btn btn-outline-danger" onclick="return confirm('Apakah Anda yakin ingin menghapus perawatan ini?')"><i class="bi bi-trash-fill"></i></button>
                             </form>
                         </td>
-                    </tr>
-                @endforeach
+                </tr>
+            @endforeach
             </tbody>
         </table>
+        <!-- End Table with stripped rows -->
+
     </div>
+</div>
 @endsection

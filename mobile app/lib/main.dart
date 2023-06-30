@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'package:get/get_navigation/src/routes/get_route.dart';
 import 'package:supabase_auth/screens/reservasi/checkout-page.dart';
+import 'package:supabase_auth/screens/reservasi/payment-failed.dart';
+import 'package:supabase_auth/screens/reservasi/payment-screen.dart';
+import 'package:supabase_auth/screens/reservasi/payment-success.dart';
+import 'package:supabase_auth/screens/reservasi/preview-page.dart';
 import 'package:supabase_auth/screens/reservasi/reservasi-page.dart';
 import 'package:supabase_auth/screens/splash%20screen/one/one.dart';
 import 'package:supabase_auth/screens/splash%20screen/three/three.dart';
@@ -13,6 +18,7 @@ import 'package:supabase_auth/screens/auth/sign_up_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
   await Supabase.initialize(
       url: 'https://fuzdyyktvczvrbwrjkhe.supabase.co/',
       anonKey:
@@ -20,6 +26,20 @@ Future<void> main() async {
       authCallbackUrlHostname: 'login-callback', // optional
       debug: true // optional
       );
+
+  // OneSignal.shared.setLogLevel(OSLogLevel.verbose, OSLogLevel.none);
+  // OneSignal.shared.setAppId("98ce4c83-acb4-4667-ad2f-f628488fb3f2");
+
+  // OneSignal.shared.promptUserForPushNotificationPermission().then((accepted) {
+  //   print("Accepted permission: $accepted");
+  // });
+  // OneSignal.shared.setNotificationWillShowInForegroundHandler(
+  //     (OSNotificationReceivedEvent event) {
+  //   event.complete(event.notification);
+  // });
+
+  // OneSignal.shared
+  //     .setNotificationOpenedHandler((OSNotificationOpenedResult result) {});
 
   runApp(const MyApp());
 }
@@ -34,7 +54,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Challista Beauty Salon',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primarySwatch: Colors.pink,
       ),
       initialRoute: '/one',
       getPages: [
@@ -46,6 +66,12 @@ class MyApp extends StatelessWidget {
         GetPage(name: '/dashboard', page: () => const DashboardScreen()),
         GetPage(name: '/checkout', page: () => const CheckoutPage()),
         GetPage(name: '/reservasi', page: () => const ReservasiPage()),
+        GetPage(name: '/preview', page: () => const PreviewPage()),
+        GetPage(
+            name: '/payment-success', page: () => const PaymentSuccessPage()),
+        GetPage(
+            name: '/payment-failed', page: () => const PaymentFailedScreen()),
+        GetPage(name: '/payment', page: () => const PaymentScreen()),
       ],
     );
   }

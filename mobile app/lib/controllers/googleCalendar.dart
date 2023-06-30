@@ -3,19 +3,12 @@ import 'package:supabase_auth/controllers/reservasi.dart';
 import 'package:supabase_auth/controllers/time_slot.dart';
 import 'package:supabase_auth/services/google_calendar_service.dart';
 import 'package:googleapis/calendar/v3.dart' as calendar;
-import 'package:http/http.dart' as http;
 
 class GoogleCalendarController extends GetxController {
   final TimeSlotController timeSlotController = Get.find();
   final ReservasiController reservasiController = Get.find();
   late GoogleCalendarService _calendarService;
-  late calendar.CalendarApi calendarApi;
-  late http.Client client;
-
-  GoogleCalendarController() {
-    client = http.Client();
-    calendarApi = calendar.CalendarApi(client);
-  }
+  calendar.CalendarApi? calendarApi;
 
   @override
   void onInit() {
@@ -33,7 +26,6 @@ class GoogleCalendarController extends GetxController {
       DateTime eventStartTime, String summary) async {
     try {
       await _calendarService.initializeOAuth();
-
       final event = calendar.Event()
         ..summary = summary
         ..start = calendar.EventDateTime()
@@ -43,7 +35,8 @@ class GoogleCalendarController extends GetxController {
         ..end!.dateTime = eventStartTime.add(const Duration(hours: 1)).toUtc()
         ..end!.timeZone = 'GMT';
 
-      await calendarApi.events.insert(event, 'primary');
+      await calendarApi?.events.insert(event, 'primary');
+      print(eventStartTime);
       return true;
     } catch (error) {
       print('Error adding event to Google Calendar: $error');
@@ -65,7 +58,7 @@ class GoogleCalendarController extends GetxController {
 
     try {
       calendar.Event createdEvent =
-          await calendarApi.events.insert(event, 'primary');
+          await calendarApi!.events.insert(event, 'primary');
       return createdEvent.id!;
     } catch (e) {
       print('Error creating event: $e');
@@ -74,13 +67,13 @@ class GoogleCalendarController extends GetxController {
   }
 
   void updateCalendarEvents() {
-    calendarApi.events.list('primary').then((events) {
+    calendarApi!.events.list('primary').then((events) {
       final selectedDates = reservasiController.selectedDates;
 
       for (var event in events.items!) {
         DateTime eventDate = event.start!.dateTime!.toLocal();
         if (!selectedDates.contains(eventDate)) {
-          calendarApi.events.delete('primary', event.id!);
+          calendarApi!.events.delete('primary', event.id!);
         }
       }
 
@@ -95,7 +88,7 @@ class GoogleCalendarController extends GetxController {
         if (!eventExists) {
           createEventInCalendar(
             selectedDate,
-            selectedDate.add(Duration(hours: 1)),
+            selectedDate.add(const Duration(hours: 1)),
           );
         }
       }
@@ -109,7 +102,7 @@ class GoogleCalendarController extends GetxController {
       reminder.minutes = 30; // Mengatur pengingat 30 menit sebelum acara
 
       // Dapatkan daftar acara di Google Calendar
-      calendar.Events events = await calendarApi.events.list('primary');
+      calendar.Events events = await calendarApi!.events.list('primary');
 
       // Loop melalui setiap acara
       for (var event in events.items!) {
@@ -119,7 +112,7 @@ class GoogleCalendarController extends GetxController {
           // Tambahkan pengingat ke acara yang cocok
           event.reminders!.useDefault = false;
           event.reminders!.overrides = [reminder];
-          await calendarApi.events.update(event, 'primary', event.id!);
+          await calendarApi!.events.update(event, 'primary', event.id!);
           break;
         }
       }

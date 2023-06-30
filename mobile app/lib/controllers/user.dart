@@ -6,6 +6,7 @@ import 'package:supabase_auth/repository/user.dart';
 import 'package:flutter/material.dart';
 
 class UserController extends GetxController {
+  static UserController get to => Get.find<UserController>();
   final UserRepository userRepository = UserRepository();
   final pegawai = <UserModel>[].obs;
   final profile = <UserModel>[].obs;

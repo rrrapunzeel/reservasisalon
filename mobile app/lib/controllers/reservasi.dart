@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:get/get.dart';
+import 'package:supabase_auth/controllers/time_slot.dart';
 import 'package:supabase_auth/models/reservasi.dart';
 import 'package:supabase_auth/repository/reservasi.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -10,6 +11,8 @@ class ReservasiController extends GetxController {
     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ1emR5eWt0dmN6dnJid3Jqa2hlIiwicm9sZSI6ImFub24iLCJpYXQiOjE2NzI0MTA4ODcsImV4cCI6MTk4Nzk4Njg4N30.kMVUSwTCDMLEM-8ePXPXniT62zkB75Q3gvyvuAbkibU',
   );
   final ReservasiRepository reservasiRepository = ReservasiRepository();
+  // final TimeSlotController timeSlotController = TimeSlotController();
+
   final reservasi = <Reservasi>[].obs;
   var isLoading = false.obs;
   late DateTime firstDayOfMonth;
@@ -19,6 +22,7 @@ class ReservasiController extends GetxController {
   final availableDates = <DateTime>[].obs;
   RxString selectedPegawaiId = RxString('');
   RxList<DateTime> selectedDates = RxList<DateTime>([]);
+  List<Reservasi> reservasiList = [];
 
   @override
   Future<void> onInit() async {
@@ -58,9 +62,9 @@ class ReservasiController extends GetxController {
 
       selectedDates.value = reservasi
           .map((reservasi) => DateTime(
-                reservasi.date.year,
-                reservasi.date.month,
-                reservasi.date.day,
+                reservasi.date!.year,
+                reservasi.date!.month,
+                reservasi.date!.day,
               ))
           .toList();
     } catch (e) {
@@ -77,6 +81,26 @@ class ReservasiController extends GetxController {
       availableDates.addAll(result);
     } catch (e) {
       print("Error fetching available dates: $e");
+    }
+    isLoading(false);
+  }
+
+  void createReservasi() async {
+    final TimeSlotController timeSlotController = TimeSlotController();
+    isLoading(true);
+    try {
+      Reservasi reservasiData = Reservasi(
+          date: selectedDates.isNotEmpty ? selectedDates.first : null,
+          idTimeSlots: timeSlotController.selectedTime.value?.idTimeSlots);
+      final result = await reservasiRepository.createReservasi(reservasiData);
+      if (result != null) {
+        // Reservasi berhasil dibuat, lakukan tindakan yang sesuai
+      } else {
+        // Gagal membuat reservasi, lakukan tindakan yang sesuai
+      }
+    } catch (e) {
+      print('Error creating reservasi: $e');
+      // Tangani kesalahan saat membuat reservasi
     }
     isLoading(false);
   }

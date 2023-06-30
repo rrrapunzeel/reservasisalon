@@ -9,10 +9,12 @@ use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Http\Request;
 use Illumiinate\GuzzleHttp;
 
-class reservasiController extends BaseController {
-    
+class reservasiController extends BaseController
+{
+
     // create
-    public function insertReservasi(Request $request) {
+    public function insertReservasi(Request $request)
+    {
         $client = new \GuzzleHttp\Client();
         $headers = [
             'apikey' => 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ1emR5eWt0dmN6dnJid3Jqa2hlIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTY3MjQxMDg4NywiZXhwIjoxOTg3OTg2ODg3fQ.BOAcPoDA9lRPqeiwrhBwg0T5ODABcj2qHAglocH73ow',
@@ -41,23 +43,62 @@ class reservasiController extends BaseController {
         ]);
         return $response->getBody();
     }
-    
+
     // read
-    public function selectReservasi(Request $request) {
+    public function selectReservasi(Request $request)
+    {
         $client = new \GuzzleHttp\Client();
         $headers = [
             'apikey' => 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ1emR5eWt0dmN6dnJid3Jqa2hlIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTY3MjQxMDg4NywiZXhwIjoxOTg3OTg2ODg3fQ.BOAcPoDA9lRPqeiwrhBwg0T5ODABcj2qHAglocH73ow',
             'Authorization' => 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ1emR5eWt0dmN6dnJid3Jqa2hlIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTY3MjQxMDg4NywiZXhwIjoxOTg3OTg2ODg3fQ.BOAcPoDA9lRPqeiwrhBwg0T5ODABcj2qHAglocH73ow'
         ];
-
-        $response = $client -> Request('GET', 'https://fuzdyyktvczvrbwrjkhe.supabase.co/rest/v1/reservasi?select=*', [
+    
+        $response1 = $client->request('GET', 'https://fuzdyyktvczvrbwrjkhe.supabase.co/rest/v1/pembayaran?select=id_reservasi,nama,items', [
             'headers' => $headers
         ]);
-        return $response->getBody();
+        $response2 = $client->request('GET', 'https://fuzdyyktvczvrbwrjkhe.supabase.co/rest/v1/time_slots?select=idPegawai,jam_perawatan', [
+            'headers' => $headers
+        ]);
+        $response3 = $client->request('GET', 'https://fuzdyyktvczvrbwrjkhe.supabase.co/rest/v1/reservasi?select=id,date', [
+            'headers' => $headers
+        ]);
+    
+        $pembayaran = json_decode($response1->getBody(), true);
+        $time_slots = json_decode($response2->getBody(), true);
+        $reservasi = json_decode($response3->getBody(), true);
+    
+        // Menggabungkan data dari tabel pembayaran, time_slots, dan reservasi
+        $result = array();
+        foreach ($pembayaran as $row) {
+            $id_reservasi = $row['id_reservasi'];
+            $nama = $row['nama'];
+            $items = $row['items'];
+    
+            // Cari data time_slots yang sesuai
+            $time_slot = array_filter($time_slots, function ($item) use ($id_reservasi) {
+                return $item['idPegawai'] === $id_reservasi;
+            });
+    
+            // Menggabungkan data dari tabel menjadi satu array
+            foreach ($time_slot as $slot) {
+                $result[] = array(
+                    'id_reservasi' => $id_reservasi,
+                    'nama' => $nama,
+                    'items' => $items,
+                    'jam_perawatan' => $slot['jam_perawatan'],
+                    'date' => ''
+                );
+            }
+        }
+    
+        // Mengirimkan data hasil ke view
+        return view('reservasi.index')->with('reservasi', $result);
     }
+    
 
     // update
-    public function updateReservasi(Request $request, $id) {
+    public function updateReservasi(Request $request, $id)
+    {
         $client = new \GuzzleHttp\Client();
         $headers = [
             'apikey' => 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ1emR5eWt0dmN6dnJid3Jqa2hlIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTY3MjQxMDg4NywiZXhwIjoxOTg3OTg2ODg3fQ.BOAcPoDA9lRPqeiwrhBwg0T5ODABcj2qHAglocH73ow',
@@ -87,7 +128,8 @@ class reservasiController extends BaseController {
         return $response->getBody();
     }
     // delete
-    public function deleteReservasi(Request $request, $id) {
+    public function deleteReservasi(Request $request, $id)
+    {
         $client = new \GuzzleHttp\Client();
         $headers = [
             'apikey' => 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ1emR5eWt0dmN6dnJid3Jqa2hlIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTY3MjQxMDg4NywiZXhwIjoxOTg3OTg2ODg3fQ.BOAcPoDA9lRPqeiwrhBwg0T5ODABcj2qHAglocH73ow',
@@ -102,6 +144,7 @@ class reservasiController extends BaseController {
                 'id_reservasi' => $id_reservasi
                 ]
             ]);
-        return $response->getBody();
+        //return $response->getBody();
+        return back()->with('success', 'Data Berhasil Dihapus');
     }
 }

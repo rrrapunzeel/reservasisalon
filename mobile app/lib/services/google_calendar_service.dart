@@ -7,7 +7,7 @@ class GoogleCalendarService {
   late google_calendar.CalendarApi _calendar;
 
   // Method to initialize OAuth authentication
-  Future<void> initializeOAuth() async {
+  Future<google_calendar.CalendarApi?> initializeOAuth() async {
     GoogleSignIn _googleSignIn = GoogleSignIn(
       scopes: ['https://www.googleapis.com/auth/calendar.events'],
     );
@@ -26,6 +26,8 @@ class GoogleCalendarService {
       final client = auth.authenticatedClient(httpClient, credentials);
 
       _calendar = google_calendar.CalendarApi(client);
+
+      return _calendar;
     } catch (error) {
       // Error during authentication
       print('Error initializing OAuth: $error');

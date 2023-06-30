@@ -1,6 +1,9 @@
 import 'package:supabase_auth/models/time_slot.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../SupabaseClient.dart';
+import '../models/pembayaran.dart';
+
 class TimeSlotRepository {
   final supabase = SupabaseClient(
     'https://fuzdyyktvczvrbwrjkhe.supabase.co',
@@ -23,4 +26,94 @@ class TimeSlotRepository {
 
     return timeslots;
   }
+
+  Future<void> updateAvailability(String idPegawai, String jamPerawatan,
+      String selectedTimeSlotId, bool availability, DateTime? newDate) async {
+    final response = await supabase
+        .from('time_slots')
+        .update(
+            {'available': availability, 'tanggal': newDate?.toIso8601String()})
+        .eq('idPegawai', idPegawai)
+        .eq('jam_perawatan', jamPerawatan)
+        .execute();
+
+    if (response.error != null) {
+      throw response.error!.message ?? 'Unknown error occurred';
+    }
+
+    print('Availability updated successfully');
+  }
+}
+
+// Future<void> updateTanggal(DateTime selectedDate) async {
+//   final client = SupabaseClient('your_supabase_url', 'your_supabase_key');
+
+//   try {
+//     // Mengubah tanggal menjadi format yang sesuai untuk memfilter data di tabel
+//     String formattedDate = selectedDate.toIso8601String();
+
+//     // Memperbarui entri di tabel time_slots
+//     final response = await client
+//         .from('time_slots')
+//         .update({'available': true})
+//         .eq('tanggal', formattedDate)
+//         .execute();
+
+//     if (response.error == null) {
+//       print('Update availability success');
+//     } else {
+//       print('Update availability error: ${response.error?.message}');
+//     }
+//   } catch (e) {
+//     print('Update availability exception: $e');
+//   }
+// }
+
+Future<void> updatePembayaran(String id, Pembayaran pembayaran) async {
+  final response = await supabase
+      .from('pembayaran')
+      .update(pembayaran.toJson())
+      .eq('id', id)
+      .execute();
+
+  if (response.error != null) {
+    throw response.error!.message ?? 'Unknown error occurred';
+  }
+}
+
+Future<void> insertPembayaran(String id, Pembayaran pembayaran) async {
+  // Cek apakah data dengan ID tersebut sudah ada
+  final existingData = await getPembayaranById(id);
+  if (existingData != null) {
+    // Lakukan update jika data sudah ada
+    await updatePembayaran(id, pembayaran);
+  } else {
+    // Lakukan insert jika data belum ada
+    final response =
+        await supabase.from('pembayaran').insert(pembayaran.toJson()).execute();
+
+    if (response.error != null) {
+      throw response.error!.message ?? 'Unknown error occurred';
+    }
+  }
+}
+
+Future<Pembayaran?> getPembayaranById(String id) async {
+  final response = await supabase
+      .from('pembayaran')
+      .select()
+      .eq('id', id)
+      .single()
+      .execute();
+
+  if (response.error != null) {
+    throw response.error!.message ?? 'Unknown error occurred';
+  }
+
+  final data = response.data;
+  if (data != null) {
+    return Pembayaran.fromJson(data);
+  }
+
+  return null;
 }

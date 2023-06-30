@@ -25,7 +25,6 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    // Fetch initial data
     categoriesController.fetchCategories();
     perawatanController.fetchPerawatan();
   }
@@ -36,7 +35,8 @@ class _HomePageState extends State<HomePage> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: ColorConstant.pink300,
-        title: const Text("Beranda"),
+        centerTitle: true,
+        title: const Text("Homepage"),
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -48,7 +48,7 @@ class _HomePageState extends State<HomePage> {
             Obx(() => userController.isLoading.value
                 ? const Text("loading")
                 : Text(
-                    "Halo, ${userController.getUser!.nama.toString()}",
+                    "Hello, ${userController.getUser!.nama.toString().split(' ')[0]}👋",
                     overflow: TextOverflow.ellipsis,
                     textAlign: TextAlign.left,
                     style: AppStyle.txtPoppinsMedium22.copyWith(

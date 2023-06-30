@@ -3,8 +3,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_auth/core/utils/color_constant.dart';
 import 'package:supabase_auth/screens/home/home-page.dart';
 import 'package:supabase_auth/screens/notifikasi/notifikasi-page.dart';
-import 'package:supabase_auth/screens/profile/profile-page.dart';
+import 'package:supabase_auth/screens/profile/profile-section.dart';
 import 'package:supabase_auth/screens/reservasi/reservasi-page.dart';
+import 'package:supabase_auth/screens/reservasi/payment-screen.dart';
 import 'package:supabase_auth/supabase_state/auth_require_state.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:supabase_auth/repository/user.dart';
@@ -24,7 +25,7 @@ class _DashboardScreenState extends AuthRequiredState<DashboardScreen> {
     HomePage(),
     ReservasiPage(),
     NotifikasiPage(),
-    ProfilePage(),
+    PaymentScreen(),
   ];
 
   void _onItemTapped(int index) {
@@ -52,7 +53,7 @@ class _DashboardScreenState extends AuthRequiredState<DashboardScreen> {
     // simpen di SharedPreferences
     await prefs.setString('userId', user!.id);
     await prefs.setString('userEmail', user!.email.toString());
-    await prefs.setString('userAvatar', profile.avatar ?? '');
+    await prefs.setString('userAvatar', user!.userMetadata["avatar_url"]);
     await prefs.setString('userName', profile.nama ?? '');
     await prefs.setString('nomorTelepon', profile.nomorTelepon ?? '');
   }

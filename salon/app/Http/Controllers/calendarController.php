@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use Google\Client\ServiceProvider as GoogleCalendar;
 
 use Google_Client;

@@ -1,7 +1,6 @@
 <?php
 namespace App\Services;
 
-
 return [
 
     'default_auth_profile' => env('GOOGLE_CALENDAR_AUTH_PROFILE', 'service_account'),
