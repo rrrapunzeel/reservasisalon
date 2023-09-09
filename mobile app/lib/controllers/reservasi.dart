@@ -5,15 +5,17 @@ import 'package:supabase_auth/models/reservasi.dart';
 import 'package:supabase_auth/repository/reservasi.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../models/pembayaran.dart';
+
 class ReservasiController extends GetxController {
   final supabase = SupabaseClient(
     'https://fuzdyyktvczvrbwrjkhe.supabase.co',
     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ1emR5eWt0dmN6dnJid3Jqa2hlIiwicm9sZSI6ImFub24iLCJpYXQiOjE2NzI0MTA4ODcsImV4cCI6MTk4Nzk4Njg4N30.kMVUSwTCDMLEM-8ePXPXniT62zkB75Q3gvyvuAbkibU',
   );
   final ReservasiRepository reservasiRepository = ReservasiRepository();
-  // final TimeSlotController timeSlotController = TimeSlotController();
 
   final reservasi = <Reservasi>[].obs;
+  final bookings = <Pembayaran>[].obs;
   var isLoading = false.obs;
   late DateTime firstDayOfMonth;
   late DateTime lastDayOfMonth;
@@ -95,13 +97,21 @@ class ReservasiController extends GetxController {
       final result = await reservasiRepository.createReservasi(reservasiData);
       if (result != null) {
         // Reservasi berhasil dibuat, lakukan tindakan yang sesuai
-      } else {
-        // Gagal membuat reservasi, lakukan tindakan yang sesuai
-      }
+      } else {}
     } catch (e) {
       print('Error creating reservasi: $e');
       // Tangani kesalahan saat membuat reservasi
     }
     isLoading(false);
+  }
+
+  void fetchHalamanReservasi() async {
+    try {
+      final result = await reservasiRepository.getHalamanReservasi();
+      bookings.assignAll(result);
+      print(bookings);
+    } catch (e) {
+      print("Error fetching perawatan: $e");
+    }
   }
 }

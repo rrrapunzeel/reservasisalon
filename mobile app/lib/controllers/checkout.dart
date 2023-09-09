@@ -11,15 +11,22 @@ import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../models/time_slot.dart';
 
 class CheckoutController extends GetxController {
+  Pembayaran? getBookingById(String? idTransaksi) {
+    return bookings
+        .firstWhereOrNull((booking) => booking.idTransaksi == idTransaksi);
+  }
+
   final ReservasiRepository reservasiRepository = ReservasiRepository();
   final PerawatanController perawatanController = PerawatanController();
   final TimeSlotController timeSlotController = TimeSlotController();
   final ReservasiController reservasiController = ReservasiController();
-  final booking = <Pembayaran>[].obs;
+  final bookings = <Pembayaran>[].obs;
   Rx<TimeSlot?> selectedTime = Rx<TimeSlot?>(null);
   var isLoading = false.obs;
   Timer? paymentStatusTimer;
@@ -40,21 +47,27 @@ class CheckoutController extends GetxController {
     required String total,
     required String pegawai,
     required String tanggal,
+    required String jam,
     required List perawatanList,
   }) async {
-    final url = 'https://8f81-202-80-216-225.ngrok-free.app/pay';
+    final url = 'https://ffff-202-80-216-225.ngrok-free.app/pay';
     final headers = {
       'Content-Type': 'application/json',
     };
 
     // ambil user
     UserController userController = Get.put(UserController());
+    final DateFormat timeFormat = DateFormat('HH:mm:ss');
+    final DateFormat inputFormat = DateFormat('yyyy-MM-dd');
 
-    final DateFormat dateFormat = DateFormat('yyyy-MM-dd');
+    final DateFormat outputFormat = DateFormat('yyyy-MM-dd');
 
-    final List<DateTime> selectedDates = reservasiController.selectedDates;
-    final String formattedTanggal =
-        selectedDates.isNotEmpty ? dateFormat.format(selectedDates.first) : '';
+    final DateTime dateTime = inputFormat.parse(tanggal);
+    final String formattedDate = outputFormat.format(dateTime);
+
+    final String jam = timeSlotController.selectedTime.value != null
+        ? timeFormat.format(timeSlotController.selectedTime.value!.jamPerawatan)
+        : '15:00:00';
 
     List<Map<String, dynamic>> perawatanJsonList =
         List<Map<String, dynamic>>.from(
@@ -63,10 +76,11 @@ class CheckoutController extends GetxController {
     final body = jsonEncode({
       'nama': userController.getCurrentUser().nama,
       'email': userController.getCurrentUser().email,
-      'tanggal': formattedTanggal,
+      'total': total,
+      'jam': jam,
+      'tanggal': formattedDate,
       'pegawai': pegawai,
       'perawatan': perawatanJsonList,
-      'total': total
     });
 
     final paymentResponse =
@@ -82,7 +96,8 @@ class CheckoutController extends GetxController {
 
       // Meluncurkan halaman pembayaran menggunakan snapToken
       final paymentUrl =
-          'https://8f81-202-80-216-225.ngrok-free.app/snap?token=$snapToken'; // Ganti dengan URL yang sesuai
+          'https://ffff-202-80-216-225.ngrok-free.app/snap?token=$snapToken'; // Ganti dengan URL yang sesuai
+      await savePaymentRequest(paymentUrl); // Menyimpan paymentUrl ke sesi
 
       return paymentUrl;
     } else {
@@ -94,53 +109,39 @@ class CheckoutController extends GetxController {
     }
   }
 
-  Future<void> insertPembayaran() async {
-    final url = 'http://localhost:8000/pembayaran/create';
-    final headers = {
-      'Content-Type': 'application/json',
-      'apikey':
-          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ1emR5eWt0dmN6dnJid3Jqa2hlIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTY3MjQxMDg4NywiZXhwIjoxOTg3OTg2ODg3fQ.BOAcPoDA9lRPqeiwrhBwg0T5ODABcj2qHAglocH73ow',
-      'Authorization':
-          'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ1emR5eWt0dmN6dnJid3Jqa2hlIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTY3MjQxMDg4NywiZXhwIjoxOTg3OTg2ODg3fQ.BOAcPoDA9lRPqeiwrhBwg0T5ODABcj2qHAglocH73ow',
-      'Prefer': 'return=representation'
-    };
+  Future<void> savePaymentRequest(String paymentUrl) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('snapToken', paymentUrl);
+  }
 
-    PerawatanController perawatanController = Get.put(PerawatanController());
-    ReservasiController reservasiController = Get.put(ReservasiController());
+  void launchPaymentUrl() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final String? paymentUrl = prefs.getString('snapToken');
 
-    final DateFormat dateFormat = DateFormat('yyyy-MM-dd');
-    // Mengambil data pegawai dari perawatanController
-    String pegawai = perawatanController.pegawaiNama.value;
+    if (paymentUrl != null) {
+      if (await canLaunch(paymentUrl)) {
+        await launch(paymentUrl);
+      } else {
+        throw 'Tidak dapat meluncurkan URL';
+      }
+    }
+  }
 
-    // Mengambil data jam dari timeSlotController
-    // String jam =
-    //     timeFormat.format(timeSlotController.selectedTime.value!.jamPerawatan);
+  Future<String?> fetchTransactionStatus() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final String? snapToken = prefs.getString('snapToken');
+    final url = Uri.parse(
+        'https://ffff-202-80-216-225.ngrok-free.app/snap?token=$snapToken');
 
-    // Mengambil data tanggal dari selectedDates dalam reservasiController
-    List<DateTime> selectedDates = reservasiController.selectedDates;
-    String tanggal =
-        selectedDates.isNotEmpty ? dateFormat.format(selectedDates.first) : '';
-
-    // Membuat objek body untuk dikirim sebagai JSON
-    final body = jsonEncode({
-      'pegawai': pegawai,
-      // 'jam': jam,
-      'tanggal': tanggal,
-    });
-    // Lakukan log untuk memeriksa data yang diperoleh
-    print("Pegawai: $pegawai");
-    // print("Jam: $jam");
-    print("Tanggal: $tanggal");
-
-    final response =
-        await http.post(Uri.parse(url), headers: headers, body: body);
+    final response = await http.get(url);
 
     if (response.statusCode == 200) {
-      // Berhasil memasukkan data
-      print('Data berhasil dimasukkan');
+      final jsonResponse = json.decode(response.body);
+      final transactionStatus = jsonResponse['status'];
+
+      return transactionStatus;
     } else {
-      // Gagal memasukkan data
-      print('Gagal memasukkan data');
+      throw Exception('Gagal memperoleh status transaksi');
     }
   }
 
@@ -185,30 +186,14 @@ class CheckoutController extends GetxController {
         return Colors.green;
       case StatusTransaksi.pending:
         return Colors.yellow;
-      case StatusTransaksi.cancel:
+      case StatusTransaksi.failed:
         return Colors.red;
+      case StatusTransaksi.cancel:
+        return const Color.fromARGB(255, 165, 13, 2);
+      case StatusTransaksi.done:
+        return const Color.fromARGB(255, 2, 100, 165);
       default:
         return Colors.grey;
     }
-  }
-
-  void fetchHalamanReservasi() async {
-    try {
-      final result = await reservasiRepository.getHalamanReservasi();
-      List<Pembayaran> bookings = result;
-
-      // Memperbarui variabel checkoutController.booking dengan daftar bookings
-      booking.value = bookings;
-
-      for (Pembayaran booking in bookings) {
-        String? statusString = booking.statusTransaksi;
-        StatusTransaksi status = getStatusFromString(statusString);
-        Color statusColor = _getStatusColor(status);
-        // Use the statusColor as needed
-      }
-    } catch (e) {
-      print(e.toString()); // Print the error message
-    }
-    isLoading.value = false;
   }
 }

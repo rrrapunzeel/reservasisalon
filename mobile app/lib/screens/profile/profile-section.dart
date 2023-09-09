@@ -55,52 +55,54 @@ class _ProfileSectionState extends State<ProfileSection> {
               letterSpacing: getHorizontalSize(1.0),
             ),
           ),
-          Divider(),
-          SizedBox(height: 20),
+          const Divider(),
+          const SizedBox(height: 20),
           ListView(
             shrinkWrap: true,
-            padding: EdgeInsets.symmetric(vertical: 16),
+            padding: const EdgeInsets.symmetric(vertical: 16),
             children: [
               ListTile(
                 onTap: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => ProfilePage()),
+                    MaterialPageRoute(
+                        builder: (context) => const ProfilePage()),
                   );
                 },
-                leading: Icon(
+                leading: const Icon(
                   Icons.account_circle_outlined,
                   color: Color.fromARGB(255, 226, 97, 140),
                 ),
-                title: Text('Edit Profile'),
-                trailing: Icon(Icons.arrow_right_sharp),
+                title: const Text('Edit Profile'),
+                trailing: const Icon(Icons.arrow_right_sharp),
               ),
-              Divider(), // Divider pertama
+              const Divider(), // Divider pertama
               ListTile(
                 onTap: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => ProfilePage()),
+                    MaterialPageRoute(
+                        builder: (context) => const ProfilePage()),
                   );
                 },
-                leading: Icon(
+                leading: const Icon(
                   Icons.history,
                   color: Color.fromARGB(255, 226, 97, 140),
                 ),
-                title: Text('Booking History'),
-                trailing: Icon(Icons.arrow_right_sharp),
+                title: const Text('Booking History'),
+                trailing: const Icon(Icons.arrow_right_sharp),
               ),
-              Divider(),
+              const Divider(),
               ListTile(
                 onTap: () async {
                   await Supabase.instance.client.auth.signOut();
                 },
-                leading: Icon(
+                leading: const Icon(
                   Icons.logout_outlined,
                   color: Color.fromARGB(255, 226, 97, 140),
                 ),
-                title: Text('Logout'),
-                trailing: Icon(Icons.arrow_right_sharp),
+                title: const Text('Logout'),
+                trailing: const Icon(Icons.arrow_right_sharp),
               ),
             ],
           ),

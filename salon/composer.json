@@ -15,9 +15,11 @@
         "laravel/tinker": "^2.8",
         "midtrans/midtrans-php": "^2.5",
         "onesignal/onesignal-php-api": "dev-main",
+        "phpmailer/phpmailer": "^6.8",
         "sendgrid/sendgrid": "^8.0",
         "spatie/laravel-google-calendar": "^3.6",
         "supabase/supabase-php": "^0.0.1",
+        "symfony/mime": "^6.3",
         "veritrans/veritrans-php": "^1.2"
     },
     "require-dev": {

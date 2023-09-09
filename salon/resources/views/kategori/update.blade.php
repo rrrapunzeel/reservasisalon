@@ -1,7 +1,7 @@
-@extends('layouts.mainlayout');
+@extends('layouts.mainlayout')
 @extends('layouts.formlayout')
 
-@section('title', 'Kategori');
+@section('title', 'Kategori')
 
 @section('content')
 <div class="pagetitle">
@@ -31,7 +31,7 @@
 
             <div class="row mb-3">
                 <label for="nama_kategori" class="col-sm-2 col-form-label">Nama Kategori</label>
-                <div class="row mb-3">
+                <div class="col-sm-10">
                 <input type="text" class="form-control" name="nama_kategori" id="nama_kategori" value="{{ $kategori['nama_kategori'] }}" required>
             </div>
         </div>

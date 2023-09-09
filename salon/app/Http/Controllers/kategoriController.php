@@ -1,10 +1,6 @@
 <?php
 
 namespace App\Http\Controllers;
-
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
-use Illuminate\Foundation\Bus\DispatchesJobs;
-use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Http\Request;
 use Illumiinate\GuzzleHttp;
@@ -80,6 +76,10 @@ class kategoriController extends BaseController
             'headers' => $headers
         ]);
         $kategoris = json_decode($response->getBody());
+
+        usort($kategoris, function ($a, $b) {
+            return $b->id_kategori - $a->id_kategori;
+        });
 
         return view('kategori.index')->with('kategoris', $kategoris);
     }

@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use GuzzleHttp\Client;
-
+use Carbon\Carbon;
 class JadwalController extends Controller {
 
     public function selectPegawai()
@@ -45,7 +45,8 @@ class JadwalController extends Controller {
     return view('jadwal.create')->with('jadwals', $jadwals);
     }
 
-    public function selectJadwal (Request $request) {
+    public function selectJadwal(Request $request)
+    {
         $client = new Client();
         $headers = [
             'apikey' => 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ1emR5eWt0dmN6dnJid3Jqa2hlIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTY3MjQxMDg4NywiZXhwIjoxOTg3OTg2ODg3fQ.BOAcPoDA9lRPqeiwrhBwg0T5ODABcj2qHAglocH73ow',
@@ -54,23 +55,59 @@ class JadwalController extends Controller {
             'Prefer' => 'return=minimal'
         ];
     
-    $response = $client->Request('GET', 'https://fuzdyyktvczvrbwrjkhe.supabase.co/rest/v1/time_slots?select=*', [
-        'headers' => $headers,
-    ]);
+        $currentDate = Carbon::now();
+        $selectedDate = Carbon::parse($request->input('tanggal'));
+    
+        // Cek apakah tanggal di kalender berbeda dengan tanggal saat ini
+        if (!$selectedDate->isSameDay($currentDate)) {
+            // Mengubah semua jadwal menjadi "Aktif"
+            $response = $client->request('GET', 'https://fuzdyyktvczvrbwrjkhe.supabase.co/rest/v1/time_slots?select=*', [
+                'headers' => $headers,
+            ]);
+    
+            $jadwals = json_decode($response->getBody(), true);
+    
+            foreach ($jadwals as &$jadwal) {
+                $jadwal['available'] = 'Aktif';
+            }
+        } else {
+            // Jika tanggal di kalender sama dengan tanggal saat ini
+            // Get the filter values from the request
+            $pegawaiFilter = $request->input('pegawai');
+            $availableFilter = $request->input('available');
+            if ($availableFilter === 'Aktif') {
+                $availableFilter = true;
+            } elseif ($availableFilter === 'Tidak Aktif') {
+                $availableFilter = false;
+            }
+            
 
-   
-    $jadwals = json_decode($response->getBody(), true);
+    
+            // Build the API query based on the filter values
+            $query = 'https://fuzdyyktvczvrbwrjkhe.supabase.co/rest/v1/time_slots?select=*';
+            if ($pegawaiFilter) {
+                $query .= '&idPegawai=eq.' . $pegawaiFilter;
+            }
+            if ($availableFilter !== null) {
+                $query .= '&available=eq.' . ($availableFilter ? 'true' : 'false');
+            }
 
-
-    $responsePegawai = $client->Request('GET', 'https://fuzdyyktvczvrbwrjkhe.supabase.co/rest/v1/user', [
-        'headers' => $headers
-    ]);
-
-    $pegawais = json_decode($responsePegawai->getBody(), true);
-
-
-    return view('jadwal.index', compact('jadwals', 'pegawais'));
-}
+    
+            $response = $client->request('GET', $query, [
+                'headers' => $headers,
+            ]);
+    
+            $jadwals = json_decode($response->getBody(), true);
+        }
+    
+        $responsePegawai = $client->request('GET', 'https://fuzdyyktvczvrbwrjkhe.supabase.co/rest/v1/user', [
+            'headers' => $headers
+        ]);
+    
+        $pegawais = json_decode($responsePegawai->getBody(), true);
+    
+        return view('jadwal.index', compact('jadwals', 'pegawais'));
+    }
 
     public function updateJadwal(Request $request, $id)
     {

@@ -1,18 +1,14 @@
 import 'dart:convert';
-import 'dart:ui' as ui;
 import 'package:awesome_select/awesome_select.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:supabase_auth/controllers/perawatan.dart';
-import 'package:supabase_auth/controllers/notifikasi.dart';
 import 'package:supabase_auth/controllers/checkout.dart';
 import 'package:supabase_auth/controllers/user.dart';
 import 'package:supabase_auth/repository/reservasi.dart';
-import 'package:supabase_auth/models/reservasi.dart';
 import 'package:supabase_auth/controllers/googleCalendar.dart';
 import 'package:supabase_auth/core/utils/color_constant.dart';
 import 'package:supabase_auth/screens/reservasi/preview-page.dart';
-import 'package:supabase_auth/screens/reservasi/reservasi-page.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 import 'package:supabase_auth/models/perawatan.dart';
 import 'package:supabase_auth/models/time_slot.dart';
@@ -35,17 +31,12 @@ class _CheckoutPageState extends State<CheckoutPage> {
   );
   final List<Widget> pages = [
     const PreviewPage(),
-    const ReservasiPage(),
   ];
 
-  final List<String> tabTitles = [
-    'Checkout',
-    'Confirmation',
-    'Payment',
-    'Detail Reservasi'
-  ];
+  final List<String> tabTitles = ['Reservasi', 'Konfirmasi', 'Pesanan'];
 
   final RxInt currentPageIndex = 0.obs;
+  final RxBool isLoading = false.obs;
   bool isBackdropFilterVisible = false;
   late List<DateTime> selectedDates;
   late List<DateTime> enabledDates;
@@ -55,7 +46,6 @@ class _CheckoutPageState extends State<CheckoutPage> {
   final TimeSlotController timeSlotController = Get.put(TimeSlotController());
   CheckoutController checkoutController = Get.put(CheckoutController());
   ReservasiController reservasiController = Get.put(ReservasiController());
-  NotifikasiController notifikasiController = Get.put(NotifikasiController());
   ReservasiRepository reservasiRepository = Get.put(ReservasiRepository());
   GoogleCalendarController googleCalendarController =
       Get.put(GoogleCalendarController());
@@ -63,8 +53,16 @@ class _CheckoutPageState extends State<CheckoutPage> {
   @override
   void initState() {
     super.initState();
+    initializeSelectedDates();
+    fetchData();
+  }
+
+  void initializeSelectedDates() {
     selectedDates = [];
     enabledDates = [];
+  }
+
+  void fetchData() {
     reservasiController.fetchReservasi();
     reservasiController.fetchAvailableDates();
   }
@@ -72,10 +70,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
   @override
   Widget build(BuildContext context) {
     DateTime now = DateTime.now();
-    DateTime minDate = DateTime(now.year, now.month, now.day);
-    DateTime lastDayOfMonth =
-        DateTime(now.year, now.month + 1, 1).subtract(const Duration(days: 1));
-
+    DateTime firstDayOfMonth = DateTime(now.year, now.month, 1);
+    DateTime lastDayOfMonth = DateTime(now.year, now.month + 1, 0);
     bool isSameDay(DateTime date1, DateTime date2) {
       final dateFormat = DateFormat('yyyy-MM-dd');
       final formattedDate1 = dateFormat.format(date1);
@@ -89,72 +85,73 @@ class _CheckoutPageState extends State<CheckoutPage> {
         color: Colors.white,
         alignment: Alignment.center,
         child: SizedBox(
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            itemCount: tabTitles.length,
-            itemBuilder: (context, index) {
-              final isCurrentPage = index == currentPageIndex.value;
-              return InkWell(
-                onTap: () {
-                  // Aksi ketika lingkaran diklik
-                  if (index == 0) {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const CheckoutPage()),
-                    );
-                  } else if (index == 1) {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const PreviewPage()),
-                    );
-                  } else if (index == 2) {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const ReservasiPage()),
-                    );
-                  }
-                },
-                child: Container(
-                  padding: const EdgeInsets.all(8),
-                  child: Column(
-                    children: [
-                      Container(
-                        width: 30,
-                        height: 30,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: isCurrentPage
-                              ? ColorConstant.pink300
-                              : Colors.grey,
-                        ),
-                        child: Center(
-                          child: Text(
-                            '${index + 1}',
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment
+                  .spaceEvenly, // Center the tab titles horizontally
+              children: List.generate(
+                tabTitles.length,
+                (index) {
+                  final isCurrentPage = index == currentPageIndex.value;
+                  return InkWell(
+                    onTap: () {
+                      if (index == 0) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const CheckoutPage(),
+                          ),
+                        );
+                      } else if (index == 1) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const PreviewPage(),
+                          ),
+                        );
+                      }
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(8),
+                      child: Column(
+                        children: [
+                          Container(
+                            width: 30,
+                            height: 30,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: isCurrentPage
+                                  ? ColorConstant.pink300
+                                  : Colors.grey,
+                            ),
+                            child: Center(
+                              child: Text(
+                                '${index + 1}',
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ),
                             ),
                           ),
-                        ),
+                          const SizedBox(height: 4),
+                          Text(
+                            tabTitles[index],
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: isCurrentPage
+                                  ? ColorConstant.pink300
+                                  : Colors.grey,
+                            ),
+                          ),
+                        ],
                       ),
-                      const SizedBox(height: 8),
-                      Text(
-                        tabTitles[index],
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: isCurrentPage
-                              ? ColorConstant.pink300
-                              : Colors.grey,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            },
+                    ),
+                  );
+                },
+              ),
+            ),
           ),
         ),
       );
@@ -165,7 +162,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
       appBar: AppBar(
         backgroundColor: ColorConstant.pink300,
         centerTitle: true,
-        title: const Text("Checkout"),
+        title: const Text("Reservasi"),
       ),
       body: Column(
         children: [
@@ -269,15 +266,21 @@ class _CheckoutPageState extends State<CheckoutPage> {
                                             title:
                                                 Text(item.namaPerawatan ?? ''),
                                             subtitle: Text(
-                                                "Rp ${item.hargaPerawatan}"),
-                                            trailing: IconButton(
-                                              icon: const Icon(Icons.delete),
-                                              onPressed: () {
-                                                perawatanController
-                                                    .removeCartItem(item);
-                                                perawatanController
-                                                    .calculateTotal();
-                                              },
+                                                "Rp${item.hargaDP ?? item.hargaPerawatan!.toStringAsFixed(1)} | Durasi : ${item.estimasi} menit"),
+                                            trailing: Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                IconButton(
+                                                  icon:
+                                                      const Icon(Icons.delete),
+                                                  onPressed: () {
+                                                    perawatanController
+                                                        .removeCartItem(item);
+                                                    perawatanController
+                                                        .calculateTotal();
+                                                  },
+                                                ),
+                                              ],
                                             ),
                                           ),
                                         ],
@@ -352,7 +355,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                                 ? const Text("loading")
                                 : SfDateRangePicker(
                                     allowViewNavigation: false,
-                                    minDate: minDate,
+                                    minDate: firstDayOfMonth,
                                     maxDate: lastDayOfMonth,
                                     selectionColor: ColorConstant.pink300,
                                     todayHighlightColor: ColorConstant.pink300,
@@ -466,109 +469,88 @@ class _CheckoutPageState extends State<CheckoutPage> {
                         ],
                       ),
                     ),
-                    Stack(
-                      children: [
-                        Visibility(
-                          visible: isBackdropFilterVisible,
-                          child: BackdropFilter(
-                            filter: ui.ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-                            child: Container(
-                              color: Colors.transparent,
-                            ),
+                    GestureDetector(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 20),
+                        margin: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 8),
+                        width: MediaQuery.of(context).size.width,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: const BorderRadius.only(
+                            topLeft: Radius.circular(10),
+                            topRight: Radius.circular(10),
+                            bottomLeft: Radius.circular(10),
+                            bottomRight: Radius.circular(10),
                           ),
-                        ),
-                        GestureDetector(
-                          onTap: () {
-                            isBackdropFilterVisible = true;
-                          },
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 8, vertical: 20),
-                            margin: const EdgeInsets.symmetric(
-                                horizontal: 10, vertical: 8),
-                            width: MediaQuery.of(context).size.width,
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: const BorderRadius.only(
-                                topLeft: Radius.circular(10),
-                                topRight: Radius.circular(10),
-                                bottomLeft: Radius.circular(10),
-                                bottomRight: Radius.circular(10),
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.grey.withOpacity(0.2),
-                                  spreadRadius: 2,
-                                  blurRadius: 5,
-                                  offset: const Offset(0, 3),
-                                ),
-                              ],
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withOpacity(0.2),
+                              spreadRadius: 2,
+                              blurRadius: 5,
+                              offset: const Offset(0, 3),
                             ),
-                            child: Column(
-                              children: [
-                                Obx(() {
-                                  return userController.isLoading.value
-                                      ? const Text("loading")
-                                      : GestureDetector(
-                                          onTap: () {
-                                            setState(() {
-                                              isBackdropFilterVisible = true;
-                                            });
-                                          },
-                                          child: SmartSelect<String?>.single(
-                                            title: 'Pilih Pegawai',
-                                            selectedValue: perawatanController
-                                                .pegawai.value,
-                                            onChange: (selected) {
-                                              perawatanController
-                                                      .pegawai.value =
-                                                  selected.value.toString();
-                                              perawatanController
-                                                      .pegawaiNama.value =
-                                                  selected.title.toString();
-                                              print(selected.value);
-                                              timeSlotController
-                                                  .fetchTimeSlots();
-                                            },
-                                            choiceType: S2ChoiceType.radios,
-                                            choiceItems:
-                                                userController.getPegawai!,
-                                            modalType: S2ModalType.popupDialog,
-                                            modalHeader: false,
-                                            modalConfig: const S2ModalConfig(
-                                              style: S2ModalStyle(
-                                                elevation: 3,
-                                                shape: RoundedRectangleBorder(
-                                                  borderRadius:
-                                                      BorderRadius.all(
-                                                          Radius.circular(
-                                                              20.0)),
-                                                ),
+                          ],
+                        ),
+                        child: Column(
+                          children: [
+                            Obx(() {
+                              return userController.isLoading.value
+                                  ? const Text("loading")
+                                  : GestureDetector(
+                                      onTap: () {
+                                        setState(() {
+                                          isBackdropFilterVisible = true;
+                                        });
+                                      },
+                                      child: SmartSelect<String?>.single(
+                                        title: 'Pilih Pegawai',
+                                        selectedValue:
+                                            perawatanController.pegawai.value,
+                                        onChange: (selected) {
+                                          perawatanController.pegawai.value =
+                                              selected.value.toString();
+                                          perawatanController
+                                                  .pegawaiNama.value =
+                                              selected.title.toString();
+                                          print(selected.value);
+                                          timeSlotController.fetchTimeSlots();
+                                        },
+                                        choiceType: S2ChoiceType.radios,
+                                        choiceItems: userController.getPegawai!,
+                                        modalType: S2ModalType.popupDialog,
+                                        modalHeader: false,
+                                        modalConfig: const S2ModalConfig(
+                                          style: S2ModalStyle(
+                                            elevation: 3,
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.all(
+                                                  Radius.circular(20.0)),
+                                            ),
+                                          ),
+                                        ),
+                                        tileBuilder: (context, state) {
+                                          return S2Tile.fromState(
+                                            state,
+                                            isTwoLine: true,
+                                            leading: CircleAvatar(
+                                              backgroundColor:
+                                                  ColorConstant.pink300,
+                                              child: Text(
+                                                '${state.selected.toString()[0]}',
+                                                style: const TextStyle(
+                                                    color: Colors.white),
                                               ),
                                             ),
-                                            tileBuilder: (context, state) {
-                                              return S2Tile.fromState(
-                                                state,
-                                                isTwoLine: true,
-                                                leading: CircleAvatar(
-                                                  backgroundColor:
-                                                      ColorConstant.pink300,
-                                                  child: Text(
-                                                    '${state.selected.toString()[0]}',
-                                                    style: const TextStyle(
-                                                        color: Colors.white),
-                                                  ),
-                                                ),
-                                              );
-                                            },
-                                          ),
-                                        );
-                                }),
-                              ],
-                            ),
-                          ),
+                                          );
+                                        },
+                                      ),
+                                    );
+                            }),
+                          ],
                         ),
-                      ],
+                      ),
                     ),
                     Container(
                       padding: const EdgeInsets.symmetric(
@@ -652,42 +634,6 @@ class _CheckoutPageState extends State<CheckoutPage> {
                                                     (currentSlot == timeSlot);
                                               }
                                             });
-
-                                            int? selectedTimeSlotId =
-                                                timeSlot.idTimeSlots;
-
-                                            // Buat objek Reservasi baru dengan nilai yang sesuai
-                                            Reservasi newReservasi = Reservasi(
-                                              date: DateTime(
-                                                selectedDates[0].year,
-                                                selectedDates[0].month,
-                                                selectedDates[0].day,
-                                              ),
-                                              idTimeSlots: selectedTimeSlotId,
-                                            );
-
-                                            // Panggil metode createReservasi dari ReservasiRepository untuk membuat reservasi baru
-                                            await reservasiRepository
-                                                .createReservasi(newReservasi);
-                                            // if (created) {
-                                            //   // Reservasi berhasil dibuat
-                                            //   ScaffoldMessenger.of(context)
-                                            //       .showSnackBar(
-                                            //     const SnackBar(
-                                            //       content:
-                                            //           Text('Reservasi berhasil dibuat'),
-                                            //     ),
-                                            //   );
-                                            // } else {
-                                            //   // Gagal membuat reservasi
-                                            //   ScaffoldMessenger.of(context)
-                                            //       .showSnackBar(
-                                            //     const SnackBar(
-                                            //       content:
-                                            //           Text('Gagal membuat reservasi'),
-                                            //     ),
-                                            //   );
-                                            // }
                                           }
                                         },
                                         child: Card(
@@ -698,7 +644,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                                           child: Center(
                                             child: Text(
                                               DateFormat.Hm().format(
-                                                  timeSlot.jamPerawatan!),
+                                                  timeSlot.jamPerawatan),
                                               style: TextStyle(
                                                 color: isAvailable
                                                     ? textColor
@@ -716,43 +662,16 @@ class _CheckoutPageState extends State<CheckoutPage> {
                         ],
                       ),
                     ),
-                    //!SECTION
-
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         primary: ColorConstant.pink300, // background
                         onPrimary: Colors.white, // foreground
                       ),
                       onPressed: () async {
-                        List<DateTime> selectedDates =
-                            reservasiController.selectedDates;
-                        String selectedTime = timeSlotController
-                            .selectedTime.value!.jamPerawatan
-                            .toString();
-
-                        // Memanggil fungsi sendJadwal dengan data yang diperoleh
-                        String result = await checkoutController.sendJadwal(
-                          selectedDates: selectedDates,
-                          selectedTime: selectedTime,
-                        );
-                        print(result);
-                        print("Jam : ${timeSlotController.selectedTime.value}");
-                        print(
-                            "Pegawai : ${perawatanController.pegawaiNama.value}");
-                        print(
-                            "Perawatan : ${perawatanController.cartItems[0].namaPerawatan.toString()}");
-                        print(
-                            "Harga Perawatan : ${perawatanController.cartItems[0].hargaPerawatan.toString()}");
-                        print("Total : ${perawatanController.total.value}");
-                        print(
-                            "Nama :${userController.getUser!.nama.toString()}");
-                        print(
-                            "Email :${userController.getUser!.email.toString()}");
-
                         // Pindah ke halaman CheckoutPage
                         Get.to(const PreviewPage());
                       },
-                      child: const Text('Lanjut'),
+                      child: const Text('Pesan'),
                     ),
                   ],
                 ),

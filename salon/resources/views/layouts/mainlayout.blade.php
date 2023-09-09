@@ -12,6 +12,7 @@
           <!-- Favicons -->
         <link href="/NiceAdmin/assets/img/favicon.png" rel="icon">
         <link href="/NiceAdmin/assets/img/apple-touch-icon.png" rel="apple-touch-icon">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 
         <!-- Google Fonts -->
         <link href="https://fonts.gstatic.com" rel="preconnect">
@@ -28,6 +29,27 @@
 
         <!-- Template Main CSS File -->
         <link href="/NiceAdmin/assets/css/style.css" rel="stylesheet">
+       
+        <!-- CSS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css">
+
+<!-- JavaScript -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!-- CSS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css">
+
+<!-- JavaScript -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!-- CSS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css">
+
+<!-- JavaScript -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
+
+
 
 
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
@@ -76,36 +98,26 @@
         <li class="nav-item dropdown pe-3">
 
           <a class="nav-link nav-profile d-flex align-items-center pe-0" href="#" data-bs-toggle="dropdown">
-            <img src="NiceAdmin/assets/img/profile-img.jpg" alt="Profile" class="rounded-circle">
-            <span class="d-none d-md-block dropdown-toggle ps-2">Jasmine</span>
+          <i class="bi bi-person-circle" alt="Profile" class="rounded-circle"></i>
+            <span class="d-none d-md-block dropdown-toggle ps-2">Profil</span>
           </a><!-- End Profile Image Icon -->
 
 
           <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile">
             <li class="dropdown-header">
-              <h6>Jasmine Pratiwi</h6>
-              <span>Admin</span>
+              <h6>Admin</h6>
             </li>
             <li>
               <hr class="dropdown-divider">
             </li>
 
             <li>
-              <a class="dropdown-item d-flex align-items-center" href="users-profile.html">
-                <i class="bi bi-person"></i>
-                <span>Profil</span>
-              </a>
-            </li>
-            <li>
-              <hr class="dropdown-divider">
-            </li>
+    <a class="dropdown-item d-flex align-items-center" href="{{ route('logout') }}">
+        <i class="bi bi-box-arrow-right"></i>
+        <span>Sign Out</span>
+    </a>
+</li>
 
-            <li>
-              <a class="dropdown-item d-flex align-items-center" href="#">
-                <i class="bi bi-box-arrow-right"></i>
-                <span>Sign Out</span>
-              </a>
-            </li>
 
           </ul><!-- End Profile Dropdown Items -->
         </li><!-- End Profile Nav -->
@@ -130,13 +142,14 @@
       <li class="nav-heading">Kelola</li>
 
       <li class="nav-item">
-        <a class="nav-link collapsed" href="{{ route('perawatan.index') }}">
-            <i class="bi bi-scissors"></i>Perawatan
-        </a>
-    </li>
-    <li class="nav-item">
         <a class="nav-link collapsed" href="{{ route('kategori.index') }}">
             <i class="bi bi-list-task"></i>Kategori
+        </a>
+    </li>
+
+      <li class="nav-item">
+        <a class="nav-link collapsed" href="{{ route('perawatan.index') }}">
+            <i class="bi bi-scissors"></i>Perawatan
         </a>
     </li>
 

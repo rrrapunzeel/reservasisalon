@@ -1,9 +1,12 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:supabase_auth/core/app_export.dart';
 import 'package:supabase_auth/supabase_state/auth_state.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../theme/app_style.dart';
+import 'package:http/http.dart' as http;
 
 class SignInScreen extends StatefulWidget {
   const SignInScreen({Key? key}) : super(key: key);
@@ -227,9 +230,62 @@ class _SignInScreenState extends AuthState<SignInScreen> {
   }
 
   void onTapBtnGoogleSignin() async {
-    await Supabase.instance.client.auth.signInWithProvider(
-      Provider.google,
-      options: AuthOptions(redirectTo: authRedirectUri),
-    );
+    try {
+      // Get the current Supabase instance
+      final supabaseInstance = Supabase.instance;
+
+      // Check if the Supabase instance is initialized
+      if (supabaseInstance != null) {
+        // Get the Google authentication URL
+        final authUrl = await supabaseInstance.client.auth.signInWithProvider(
+          Provider.google,
+          options: AuthOptions(redirectTo: authRedirectUri),
+        );
+
+        // Open the authentication URL in a WebView or use other methods to redirect the user to the URL
+        // ...
+
+        // After the user signs in with Google and is redirected back to the app, obtain the access token
+        final queryParams = Uri.parse(authRedirectUri).queryParameters;
+        final googleToken = queryParams['access_token'];
+
+        // Get the currwent user's information from Supabase
+        final user = supabaseInstance.client.auth.user();
+
+        if (user != null) {
+          final userId =
+              user.id; // This is the user_id from the auth.users table
+          // Call your custom API route in your Laravel backend to link the Google provider
+          final apiUrl = Uri.parse(
+              'https://ffff-202-80-216-225.ngrok-free.app/link-google-provider');
+          final headers = {'Content-Type': 'application/json'};
+          final body = {
+            'access_token': googleToken,
+            'user_id': userId,
+          };
+
+          final apiResponse =
+              await http.post(apiUrl, headers: headers, body: jsonEncode(body));
+
+          if (apiResponse.statusCode == 200) {
+            // Provider linking successful
+            print('Google provider linked successfully');
+          } else {
+            // Provider linking failed
+            print('Failed to link Google provider');
+          }
+        } else {
+          // Handle case when user information is not available
+          print('User information not available');
+        }
+      } else {
+        // Handle case when Supabase instance is not initialized
+        print(
+            'Supabase instance is not initialized. Call Supabase.initialize() to initialize it.');
+      }
+    } catch (e) {
+      // Handle any errors that occur during sign-in
+      print('Error signing in with Google: $e');
+    }
   }
 }

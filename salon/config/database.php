@@ -35,6 +35,13 @@ return [
 
     'connections' => [
 
+        'supabase' => [
+            'driver' => 'supabase',
+            'url' => env('SUPABASE_URL'),
+            'key' => env('SUPABASE_KEY'),
+        ],
+        
+
         'sqlite' => [
             'driver' => 'sqlite',
             'url' => env('DATABASE_URL'),

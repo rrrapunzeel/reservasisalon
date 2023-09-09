@@ -2,6 +2,9 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:supabase_auth/models/reservasi.dart';
 import 'package:supabase_auth/models/pembayaran.dart';
 
+import '../controllers/user.dart';
+import '../models/userModel.dart';
+
 class ReservasiRepository {
   final supabase = SupabaseClient(
     'https://fuzdyyktvczvrbwrjkhe.supabase.co',
@@ -44,12 +47,19 @@ class ReservasiRepository {
   }
 
   Future<List<Pembayaran>> getHalamanReservasi() async {
+    final UserModel? user = UserController.to.getCurrentUser();
+    if (user == null || user.email == null) {
+      throw Exception('User email is missing');
+    }
+
     final response = await supabase
         .from('pembayaran')
         .select()
+        .eq('email', user.email!)
         .order('id', ascending: false)
-        .limit(3)
+        .limit(1)
         .execute();
+
     if (response.error != null) {
       throw response.error?.message ?? "Unknown error occurred";
     }
@@ -61,6 +71,7 @@ class ReservasiRepository {
       throw "Invalid or null values found in the data";
     }
 
+    print("bookings: $bookings");
     return bookings;
   }
 

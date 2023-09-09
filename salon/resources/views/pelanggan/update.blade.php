@@ -1,32 +1,60 @@
-@extends('layouts.mainlayout');
+@extends('layouts.mainlayout')
+@extends('layouts.formlayout')
 
-@section('title', 'Pelanggan');
+@section('title', 'Pelanggan')
 
 @section('content')
-    <div class="container mx-auto">
-        <h1 class="text-2xl font-bold mb-4">Edit Pelanggan</h1>
+<div class="pagetitle">
+        <h1>Edit Data</h1>
+        <nav>
+          <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ route('dashboard.view') }}">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="{{ route('pelanggan.index') }}">Pelanggan</a></li>
+            <li class="breadcrumb-item active">Edit</li>
+          </ol>
+        </nav>
+      </div><!-- End Page Title -->
+      <section class="section">
+        <div class="row">
+          <div class="card">
+              <div class="card-body">
+                <h5 class="card-title">Pelanggan</h5>
+                @if(session('success'))
+        <div class="alert alert-success mt-3">
+          {{ session('success') }}
+        </div>
+        @endif
 
-        <form action="{{ url('/pelanggan/update', $pelanggan['id']) }}" method="PATCH">
+        <form action="{{ url('/pelanggan/updatestore', $pelanggan['id']) }}" method="POST">
+    @csrf
+    @method('PATCH')
             @csrf
             @method('PATCH')
 
-            <div class="mb-4">
-                <label for="nama" class="block text-gray-700 text-sm font-bold mb-2">Nama</label>
-                <input type="text" name="nama" id="nama" class="border border-gray-300 rounded py-2 px-4" value="{{ $pelanggan['nama'] }}" required>
+            <div class="row mb-3">
+                <label for="nama" class="col-sm-2 col-form-label">Nama</label>
+                <div class="col-sm-10">
+                <input type="text" class="form-control" name="nama" id="nama" value="{{ $pelanggan['nama'] }}" required>
             </div>
+        </div>
 
-            <div class="mb-4">
-                <label for="email" class="block text-gray-700 text-sm font-bold mb-2">Email</label>
-                <input type="text" name="email" id="email" class="border border-gray-300 rounded py-2 px-4" value="{{ $pelanggan['email'] }}" required>
+        <div class="row mb-3">
+                <label for="email" class="col-sm-2 col-form-label">Email</label>
+                <div class="col-sm-10">
+                <input type="text" class="form-control" name="email" id="email" value="{{ $pelanggan['email'] }}" required>
             </div>
+        </div>
 
-            <div class="mb-4">
-                <label for="nomor_telepon" class="block text-gray-700 text-sm font-bold mb-2">Nomor Telepon</label>
-                <input type="text" name="nomor_telepon" id="nomor_telepon" class="border border-gray-300 rounded py-2 px-4" value="{{ $pelanggan['nomor_telepon'] }}" required>
+        <div class="row mb-3">
+                <label for="nomor_telepon" class="col-sm-2 col-form-label">Nomor Telepon</label>
+                <div class="col-sm-10">
+                <input type="text" class="form-control" name="nomor_telepon" id="nomor_telepon" value="{{ $pelanggan['nomor_telepon'] }}" required>
             </div>
-            <div class="mb-4">
-                <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Save</button>
-                <a href="{{ url('/pelanggan/select') }}" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-2 px-4 rounded">Cancel</a>
+        </div>
+
+        <div class="text-center">
+                <button type="submit" class="btn btn-primary">Simpan</button>
+                <a href="{{ url('/pelanggan/select') }}" class = "btn btn-danger">Batal</a>
             </div>
         </form>
     </div>

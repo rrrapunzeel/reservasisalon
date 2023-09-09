@@ -22,11 +22,68 @@ class _HomePageState extends State<HomePage> {
   PerawatanController perawatanController = Get.put(PerawatanController());
   UserController userController = Get.put(UserController());
 
+  bool _isTooltipVisible = false;
+  GlobalKey _listViewKey = GlobalKey();
+
   @override
   void initState() {
     super.initState();
     categoriesController.fetchCategories();
     perawatanController.fetchPerawatan();
+
+    WidgetsBinding.instance!.addPostFrameCallback((_) {
+      _showTooltip();
+    });
+  }
+
+  Widget _buildCategoryContainer(bool isSelected, String categoryName) {
+    return Container(
+      margin: const EdgeInsets.only(left: 10),
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: isSelected ? ColorConstant.pink300 : Colors.white,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(
+          color: ColorConstant.pink300,
+          width: 2,
+        ),
+      ),
+      child: Text(
+        categoryName,
+        textAlign: TextAlign.left,
+        style: TextStyle(
+          color: isSelected ? Colors.white : Colors.black,
+        ),
+      ),
+    );
+  }
+
+  void _showTooltip([TapDownDetails? details]) {
+    final tooltipOverlayEntry = OverlayEntry(
+      builder: (context) {
+        if (details == null) {
+          return Container(); // If there are no categories, hide the tooltip
+        }
+
+        final bubbleTop = details.globalPosition.dy + 10;
+        final bubbleLeft = details.globalPosition.dx - 30;
+
+        return Positioned(
+          top: bubbleTop,
+          left: bubbleLeft,
+          child: _CustomTooltip(
+            message: "Sort by kategori",
+          ),
+        );
+      },
+    );
+
+    Overlay.of(context)?.insert(tooltipOverlayEntry);
+
+    // Hide the tooltip after a short delay
+    Future.delayed(Duration(seconds: 3), () {
+      tooltipOverlayEntry.remove();
+    });
   }
 
   @override
@@ -36,7 +93,7 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         backgroundColor: ColorConstant.pink300,
         centerTitle: true,
-        title: const Text("Homepage"),
+        title: const Text("Beranda"),
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -48,7 +105,7 @@ class _HomePageState extends State<HomePage> {
             Obx(() => userController.isLoading.value
                 ? const Text("loading")
                 : Text(
-                    "Hello, ${userController.getUser!.nama.toString().split(' ')[0]}👋",
+                    "Halo, ${userController.getUser!.nama.toString().split(' ')[0]}👋",
                     overflow: TextOverflow.ellipsis,
                     textAlign: TextAlign.left,
                     style: AppStyle.txtPoppinsMedium22.copyWith(
@@ -56,61 +113,46 @@ class _HomePageState extends State<HomePage> {
                     ),
                   )),
             const SizedBox(height: 8.0),
-            Text(
-              "Mau perawatan apa hari ini?".tr,
-              overflow: TextOverflow.ellipsis,
-              textAlign: TextAlign.left,
-              style: AppStyle.txtRobotoRegular16.copyWith(
-                letterSpacing: getHorizontalSize(1.0),
-              ),
-            ),
-            const Divider(),
             SizedBox(
               height: 40,
               child: Obx(
                 () => categoriesController.isLoading.value
                     ? const Text("loading")
-                    : ListView.separated(
-                        scrollDirection: Axis.horizontal,
-                        shrinkWrap: true,
-                        separatorBuilder: (context, index) {
-                          return const SizedBox(height: 10);
-                        },
-                        itemCount: categoriesController.kategori.length,
-                        itemBuilder: (context, index) {
-                          Category model = categoriesController.kategori[index];
-                          bool isSelected = model ==
-                              categoriesController.selectedCategory.value;
+                    : Container(
+                        height: 40,
+                        child: ListView.builder(
+                          key: _listViewKey,
+                          scrollDirection: Axis.horizontal,
+                          shrinkWrap: true,
+                          itemCount: categoriesController.kategori.length,
+                          itemBuilder: (context, index) {
+                            Category model =
+                                categoriesController.kategori[index];
+                            bool isSelected = model ==
+                                categoriesController.selectedCategory.value;
 
-                          return GestureDetector(
-                            onTap: () {
-                              categoriesController
-                                  .fetchDataByCategory(model.namaKategori);
-                            },
-                            child: Container(
-                              margin: const EdgeInsets.only(left: 10),
-                              padding: const EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                color: isSelected
-                                    ? ColorConstant.pink300
-                                    : Colors.white,
-                                borderRadius: BorderRadius.circular(10),
-                                border: Border.all(
-                                  color: ColorConstant.pink300,
-                                  width: 2,
+                            return GestureDetector(
+                              onTap: () {
+                                categoriesController
+                                    .fetchDataByCategory(model.namaKategori);
+                              },
+                              onTapDown: (details) {
+                                _showTooltip(details);
+                              },
+                              child: Container(
+                                child: Row(
+                                  children: [
+                                    _buildCategoryContainer(
+                                        isSelected, model.namaKategori),
+                                    const SizedBox(
+                                      width: 10,
+                                    ), // Separator between items
+                                  ],
                                 ),
                               ),
-                              child: Text(
-                                model.namaKategori.toString(),
-                                textAlign: TextAlign.left,
-                                style: TextStyle(
-                                  color:
-                                      isSelected ? Colors.white : Colors.black,
-                                ),
-                              ),
-                            ),
-                          );
-                        },
+                            );
+                          },
+                        ),
                       ),
               ),
             ),
@@ -141,7 +183,7 @@ class _HomePageState extends State<HomePage> {
                                       ),
                                     ),
                                     Text(
-                                      "Rp${perawatan.hargaPerawatan!.toStringAsFixed(0)}",
+                                      "Harga DP : Rp${perawatan.hargaPerawatan!.toStringAsFixed(0)} | Durasi : ${perawatan.estimasi.toString()} menit",
                                       style: const TextStyle(
                                         fontSize: 14.0,
                                         fontWeight: FontWeight.w500,
@@ -149,27 +191,21 @@ class _HomePageState extends State<HomePage> {
                                     ),
                                   ],
                                 ),
-                                ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                    primary: Colors.white,
-                                    onPrimary: Colors.black,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(100),
-                                      side: BorderSide(
-                                        color: ColorConstant.pink300,
-                                        width: 2,
-                                      ),
-                                    ),
-                                    padding: const EdgeInsets.all(10),
+                                Container(
+                                  width: 35,
+                                  height: 35,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: ColorConstant.pink300,
                                   ),
-                                  onPressed: () async {
-                                    await perawatanController
-                                        .addCartItem(perawatan);
-                                  },
-                                  child: const Text(
-                                    '+',
-                                    style: TextStyle(
-                                      fontSize: 15,
+                                  child: InkWell(
+                                    onTap: () async {
+                                      await perawatanController
+                                          .addCartItem(perawatan);
+                                    },
+                                    child: const Icon(
+                                      Icons.add,
+                                      color: Colors.white,
                                     ),
                                   ),
                                 ),
@@ -179,26 +215,47 @@ class _HomePageState extends State<HomePage> {
                         },
                       ),
               ),
-            )
+            ),
           ],
         ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          perawatanController.calculateTotal(); // Calculate the total
-          Navigator.pushNamed(context, '/checkout');
-        },
-        backgroundColor: ColorConstant.pink300,
-        label: Obx(() {
-          final isLoading = perawatanController.isLoading.value;
-          final cartCount = perawatanController.cartCount.value;
-          final total = perawatanController.total.value;
+      floatingActionButton: Obx(() {
+        final cartCount = perawatanController.cartCount.value;
+        final total = perawatanController.total.value;
 
-          return isLoading
-              ? const Text("loading")
-              : Text('Keranjang : $cartCount, Total : Rp$total');
-        }),
+        return Visibility(
+          visible: cartCount > 0,
+          child: FloatingActionButton.extended(
+            onPressed: () {
+              perawatanController.calculateTotal(); // Calculate the total
+              Navigator.pushNamed(context, '/checkout');
+            },
+            backgroundColor: ColorConstant.pink300,
+            label: Text('Keranjang : $cartCount | Total : Rp$total'),
+          ),
+        );
+      }),
+    );
+  }
+}
+
+class _CustomTooltip extends StatelessWidget {
+  final String message;
+
+  const _CustomTooltip({Key? key, required this.message}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: Colors.grey[200],
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Text(
+        message,
+        style: TextStyle(fontSize: 14, color: Colors.black),
       ),
     );
   }

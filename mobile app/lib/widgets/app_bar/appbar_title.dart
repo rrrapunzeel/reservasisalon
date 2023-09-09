@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 // ignore: must_be_immutable
 class AppbarTitle extends StatelessWidget {
-  AppbarTitle({required this.text, this.margin, this.onTap});
+  AppbarTitle({super.key, required this.text, this.margin, this.onTap});
 
   String text;
 

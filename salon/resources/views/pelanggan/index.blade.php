@@ -18,8 +18,6 @@
 <div class="card">
     <div class="card-body">
       <h5 class="card-title">Data Pelanggan</h5>
-      <a href="{{ route('pelanggan.create') }}" class="btn btn-primary mb-3">Tambah pelanggan</a>
-
       <div class="table-responsive">
       <table class="table table-borderless datatable">
         <thead>
@@ -28,7 +26,6 @@
             <th scope="col">Nama</th>
             <th scope="col">Email </th>
             <th scope="col">Nomor Telepon</th>
-            <th scope="col">Role</th>
             <th scope="col">Aksi</th>
           </tr>
         </thead>
@@ -39,7 +36,6 @@
                     <td>{{ $user->nama }}</td>
                     <td>{{ $user->email }}</td>
                     <td>{{ $user->nomor_telepon }}</td>
-                    <td>{{ $user->role }}</td>
 
                 <td>
                 <a href="{{ route('pelanggan.update', $user->id) }}" class="btn btn-outline-primary"><i class="bi bi-pencil-fill"></i></a>

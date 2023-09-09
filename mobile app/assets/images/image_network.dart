@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 class ImageNetwork extends StatelessWidget {
+  const ImageNetwork({super.key});
+
   @override
   Widget build(BuildContext context) {
     return CachedNetworkImage(
@@ -12,7 +14,7 @@ class ImageNetwork extends StatelessWidget {
       height: 200,
       fit: BoxFit.cover,
       placeholder: (context, url) => const CircularProgressIndicator(),
-      errorWidget: (context, url, error) => Icon(Icons.error),
+      errorWidget: (context, url, error) => const Icon(Icons.error),
     );
   }
 }

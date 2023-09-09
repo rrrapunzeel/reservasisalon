@@ -2,13 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
-use Illuminate\Foundation\Bus\DispatchesJobs;
-use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use App\Http\Controllers\JadwalController;
+use Illuminate\Support\Str;
 
 class userController extends BaseController
 {
@@ -85,7 +82,7 @@ class userController extends BaseController
             'email' => $email,
             'nama' => $nama,
             'avatar_url' => $avatar_url,
-            'role'=>$role
+            'role'=>$role,
         ]
     ]);
 
@@ -165,43 +162,6 @@ return 'User is not authenticated';
         return $response->getBody();
     }
 
-    public function updatePegawai(Request $request, $id)
-    {
-        $client = new \GuzzleHttp\Client();
-        $headers = [
-            'apikey' => 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ1emR5eWt0dmN6dnJid3Jqa2hlIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTY3MjQxMDg4NywiZXhwIjoxOTg3OTg2ODg3fQ.BOAcPoDA9lRPqeiwrhBwg0T5ODABcj2qHAglocH73ow',
-          'Authorization' => 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ1emR5eWt0dmN6dnJid3Jqa2hlIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTY3MjQxMDg4NywiZXhwIjoxOTg3OTg2ODg3fQ.BOAcPoDA9lRPqeiwrhBwg0T5ODABcj2qHAglocH73ow',
-          'Content-Type' => 'application/json',
-          'Prefer' => 'return=minimal'
-        ];
-
-        $nama = $request->nama;
-        $email = $request->email;
-        $nomor_telepon = $request->nomor_telepon;
-        $status = $request->status;
-
-        $response = $client->Request('GET', 'https://fuzdyyktvczvrbwrjkhe.supabase.co/rest/v1/user?id=eq.'.$id, [
-            'headers' => $headers,
-        ]);
-        $datapegawai = json_decode($response->getBody(), true);
-
-        if (!empty($datapegawai) && count($datapegawai) > 0) {
-            $pegawai = $datapegawai[0];
-    
-        $response = $client->request('PATCH', 'https://fuzdyyktvczvrbwrjkhe.supabase.co/rest/v1/user?id=eq.'.$id, [
-            'headers' => $headers,
-            'json' => [
-                'nama' => $nama,
-                'email' => $email,
-                'nomor_telepon' => $nomor_telepon,
-                'status' => $status
-            ]
-        ]);
-
-            return view('pegawai.update', compact('pegawai'))->with('success', 'Pegawai berhasil diperbarui');
-        
-    }
-}
 
 public function updatePelanggan(Request $request, $id)
 {
@@ -213,33 +173,30 @@ public function updatePelanggan(Request $request, $id)
       'Prefer' => 'return=minimal'
     ];
 
+    
     $nama = $request->nama;
     $email = $request->email;
     $nomor_telepon = $request->nomor_telepon;
+    $userId = Str::uuid();
 
-    $response = $client->Request('GET', 'https://fuzdyyktvczvrbwrjkhe.supabase.co/rest/v1/user?id=eq.'.$id, [
-        'headers' => $headers,
-    ]);
-    $datapelanggan = json_decode($response->getBody(), true);
-
-    if (!empty($datapelanggan) && count($datapelanggan) > 0) {
-        $pelanggan = $datapelanggan[0];
-
-    $response = $client->request('PATCH', 'https://fuzdyyktvczvrbwrjkhe.supabase.co/rest/v1/user?id=eq.'.$id, [
+    $response = $client->request('GET', 'https://fuzdyyktvczvrbwrjkhe.supabase.co/rest/v1/user?id=eq.'.$id, [
         'headers' => $headers,
         'json' => [
             'nama' => $nama,
             'email' => $email,
             'nomor_telepon' => $nomor_telepon,
+            'id'=>$userId,
         ]
     ]);
 
-        return view('pelanggan.update', compact('pelanggan'))->with('success', 'Pegawai berhasil diperbarui');
-    
+    $datapelanggan = json_decode($response->getBody());
+    if (!empty($datapelanggan) && count($datapelanggan) > 0) {
+        $pelanggan = $datapelanggan[0];
+    return view('pelanggan.update')->with('pelanggan', $pelanggan);
 }
 }
 
-public function insertPelanggan(Request $request)
+public function storeUpdate(Request $request, $id)
 {
     $client = new \GuzzleHttp\Client();
     $headers = [
@@ -249,23 +206,66 @@ public function insertPelanggan(Request $request)
       'Prefer' => 'return=minimal'
     ];
 
+    
     $nama = $request->nama;
     $email = $request->email;
     $nomor_telepon = $request->nomor_telepon;
+    $userId = Str::uuid();
 
-    $response = $client->request('POST', 'https://fuzdyyktvczvrbwrjkhe.supabase.co/rest/v1/user', [
+    $response = $client->request('PATCH', 'https://fuzdyyktvczvrbwrjkhe.supabase.co/rest/v1/user?id=eq.'.$id, [
         'headers' => $headers,
         'json' => [
             'nama' => $nama,
             'email' => $email,
             'nomor_telepon' => $nomor_telepon,
+            'id'=>$userId,
         ]
     ]);
 
     $datapelanggan = json_decode($response->getBody());
-        return view('pelanggan.create')->with('datapelanggan', $datapelanggan);
-    
+    if (!empty($datapelanggan) && count($datapelanggan) > 0) {
+        $pelanggan = $datapelanggan[0];
+        return redirect()->route('pelanggan.index')->with('success', 'Data berhasil diperbarui');
 }
+}
+
+public function storePelanggan(Request $request)
+{
+    $client = new \GuzzleHttp\Client();
+    $headers = [
+        'apikey' => 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ1emR5eWt0dmN6dnJid3Jqa2hlIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTY3MjQxMDg4NywiZXhwIjoxOTg3OTg2ODg3fQ.BOAcPoDA9lRPqeiwrhBwg0T5ODABcj2qHAglocH73ow',
+      'Authorization' => 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ1emR5eWt0dmN6dnJid3Jqa2hlIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTY3MjQxMDg4NywiZXhwIjoxOTg3OTg2ODg3fQ.BOAcPoDA9lRPqeiwrhBwg0T5ODABcj2qHAglocH73ow',
+      'Content-Type' => 'application/json',
+      'Prefer' => 'return=minimal'
+    ];
+
+    
+    $nama = $request->nama;
+    $email = $request->email;
+    $nomor_telepon = $request->nomor_telepon;
+    $userId = Str::uuid();
+
+    $response = $client->request('POST', 'https://fuzdyyktvczvrbwrjkhe.supabase.co/auth/v1/signup', [
+        'headers' => $headers,
+        'json' => [
+            'nama' => $nama,
+            'email' => $email,
+            'nomor_telepon' => $nomor_telepon,
+            'id'=>$userId,
+        ]
+    ]);
+
+    $datapelanggan = json_decode($response->getBody());
+    return redirect()->route('pelanggan.index')->with('success', 'Data berhasil disimpan');
+}
+
+
+public function insertPelanggan(Request $request)
+{
+        return view('pelanggan.create');
+}
+
+
     
     // delete
     public function deleteUser(Request $request, $id)

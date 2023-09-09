@@ -6,6 +6,8 @@ import '../../../theme/app_style.dart';
 import '../../../theme/app_decoration.dart';
 
 class AppNavigationScreen extends GetWidget<AppNavigationController> {
+  const AppNavigationScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(

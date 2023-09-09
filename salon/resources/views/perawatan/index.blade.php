@@ -27,6 +27,7 @@
                     <th scope="col">#</th>
                     <th scope="col">Kategori</th>
                     <th scope="col">Nama Perawatan</th>
+                    <th scope="col">Durasi</th>
                     <th scope="col">Harga</th>
                     <th scope="col">Aksi</th>
                 </tr>
@@ -43,6 +44,7 @@
                         @endforeach
                     </td>
                     <td>{{ $perawatan['nama_perawatan'] }}</td>
+                    <td>{{ $perawatan['estimasi'] }}</td>
                     <td>{{ $perawatan['harga_perawatan'] }}</td>
                     <td>
                             <a href="{{ route('perawatan.update', $perawatan['id_perawatan']) }}" class="btn btn-outline-primary"><i class="bi bi-pencil-fill"></i></a>

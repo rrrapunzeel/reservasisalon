@@ -20,6 +20,7 @@ class UserController extends GetxController {
 
   @override
   Future<void> onInit() async {
+    super.onInit();
     getListPegawai();
     prefs = await SharedPreferences.getInstance();
     getUserInfo();

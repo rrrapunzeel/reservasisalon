@@ -24,11 +24,28 @@ class PerawatanRepository {
     return perawatan;
   }
 
+  Future<List<Perawatan>> getEstimasi() async {
+    final response = await supabase
+        .from('perawatan')
+        .select()
+        .order('estimasi', ascending: true)
+        .execute();
+
+    if (response.error != null) {
+      throw response.error?.message ?? "Unknown error occurred";
+    }
+
+    final data = response.data as List<dynamic>;
+    final estimasi = data.map((json) => Perawatan.fromJson(json)).toList();
+
+    return estimasi;
+  }
+
   Future<Perawatan> getPerawatanById(int idPerawatan) async {
     final response = await supabase
         .from('perawatan')
         .select('*')
-        .eq('id_perawatan', idPerawatan)
+        .eq('estimasi', idPerawatan)
         .single()
         .execute();
     if (response.error != null) {

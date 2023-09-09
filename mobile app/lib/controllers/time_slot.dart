@@ -32,7 +32,7 @@ class TimeSlotController extends GetxController {
 
       if (id.value != null) {
         // Get the time slots for the fetched pegawai ID
-        final result = await timeSlotRepository.getTimeSlots(id.value!);
+        final result = await timeSlotRepository.getTimeSlots(id.value);
         timeSlots.assignAll(result);
 
         // Listen to changes in selectedTime and update availability accordingly
@@ -88,7 +88,7 @@ class TimeSlotController extends GetxController {
           selectedTime.value!.jamPerawatan.toString(),
           selectedTimeSlotId,
           false,
-          selectedDates.isNotEmpty ? selectedDates.first! : null,
+          selectedDates.isNotEmpty ? selectedDates.first : null,
         );
 
         // Update the timeSlots list to reflect the updated availability
@@ -97,7 +97,7 @@ class TimeSlotController extends GetxController {
         if (index != -1) {
           timeSlots[index].available = false;
           timeSlots[index].tanggal =
-              selectedDates.isNotEmpty ? selectedDates.first! : null;
+              selectedDates.isNotEmpty ? selectedDates.first : null;
         }
 
         print('Availability updated successfully');

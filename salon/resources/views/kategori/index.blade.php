@@ -8,7 +8,7 @@
     <nav>
       <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{{ route ('dashboard.view')}}">Dashboard</a></li>
-        <li class="breadcrumb-item">Kategori</li>
+        <li class="breadcrcumb-item">Kategori</li>
       </ol>
     </nav>
   </div>

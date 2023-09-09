@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "challista-beauty-salon",
+  "private_key_id": "f47aaf18c5df6d91a35350dabb78bc2fc8c5c19e",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCNxxaPeLMvQW6s\ncYPQq1MT5/Ef0DRPBfoJ94MaA5Rxz5yI6VKvcLtJDnztBJEmrTYHdE1glifei0ea\npGlUe8nVHjMrxFfA+ji1ekv9riKLyW2oz6ctb0KmZTCtQ0cskvK5+eMfqoipYSvz\nxuWBvmXehs5RYI+CH+x0r/10igH6hTN/ZsMHoccLfhBpniEKpEGqRT+Q/8zjrvjq\nVlwMepbfHylUMcxIyod3bmf4l+HzC+RXLWIDm6hNj6Q2PlQo6FkTvXxY1mmR0/2X\n3vmCxDoCtWw/iawguz67eanwv+/P94STR2Z3nDxC7PmXMhivGt7tofHmf3uowC9n\n6qx7Q09nAgMBAAECggEAB1Ny8BkrAEAcMluaXMDdlByiFbKHYW0TMPWKwrWVFzKo\nQnn04PDJo8pUhx17TGXiACnwwvZ4Oyfe1VRgOIQ94eGHKu6vA+2GhYaQeccPSXsw\nLzJ0lpLg/Ts/kHDaMxrFqIfSm4a55tpB5Zm/BHXwLhAihf0Ryb7fqUGxdYhghOhA\nFZGx46wO7xwGtzF0YFKQUzyXhhrQxkOihMC/PzzDcZxkBk0NvC61FavQ6SehIcU3\nwl/PlO7elUX6gOC2UCZmbHoKxgztbDn4IPWQv1wsTkkQbZEEbVHH+rPBauQ+YASs\nNDkyEg1K+V4jTplJAI3KoN5lfIs8A0Xq4FnuVwHQ8QKBgQDFDDw5zji8+PYOOX/5\na1lbFVjHnAj8ToNilWj9nT4fP/VUXXTcrVhr6beQCGFJ5po72cRPn8JLjz+3mx83\nKyE2UxVImQUL+NQ6W+rVTJy6f770/LRc9sOdMYFJWegxpob69gESfWMIdJcCT/rt\n3ihEgmxNPtVxPtXk/k/J+1IVdQKBgQC4McAwWuC8n+xP0yOlobDjjmMDFX6z4CWZ\nF1BICulpctwymX0/i1GflPhzNI+oScjHnZzvBbT6hpBzBGjnvZGN0EL+ks1j9hPx\n6madf2D1ilFlNHHgXaitpekDkxr6O2tYvtnVrBbJowLYBtjr4ev+7X4JbaLoz5rW\nPnAP7/aJ6wKBgQCsUKHOLy/g2ZpbIB9wn1a51zYXALW+5m3w5RW2Sy7LJyREDaIn\nZROg8vaKZzmk5ZtU4X/R3bSMXQ3sYyPuG7Jkjk1bei02pff5vO3kb6XTVelI1kBn\n14eCzIrx+USbPrRlfIG9iJb1CvgPlp+qKg9usdtBxcPjz34/TcG6sSO8DQKBgA5A\nkz1qmr8dpLxcewKi6zwAVXr0m9QxQNeCrUyVw4/MOmuT4tQa5JrzfPH1HDSKWQXR\nFUaNa36DEQRFUBS2X1/YwIZQN6JHdS2f1IbVR1xYconhL/qLZLTjBI+pP0ojdN/u\nDI7y/ORnP54VkY1W8trL55e1KwjWn4V6WVNyXuI3AoGBAKEzYNO6lx2MEvjU8yg0\nkFY5GmgF691L6TfnSp+rDBFO+SW8mJh+9ldjOAVqcpp9TXIFPHQYJkyfI69xA+5H\nP2Bv5quzkUG4zTmw6sl9ioJQJcSJ11wRAAn042zDsrQcGAFvU82K1eUjTl2LbSu6\nDaSkE27ClEq6/D71X9k52Agb\n-----END PRIVATE KEY-----\n",
+  "client_email": "challista-beauty-salon@challista-beauty-salon.iam.gserviceaccount.com",
+  "client_id": "110786916901669385363",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/challista-beauty-salon%40challista-beauty-salon.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}

@@ -2,10 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_auth/core/utils/color_constant.dart';
 import 'package:supabase_auth/screens/home/home-page.dart';
-import 'package:supabase_auth/screens/notifikasi/notifikasi-page.dart';
-import 'package:supabase_auth/screens/profile/profile-section.dart';
+import 'package:supabase_auth/screens/profile/profile-page.dart';
 import 'package:supabase_auth/screens/reservasi/reservasi-page.dart';
-import 'package:supabase_auth/screens/reservasi/payment-screen.dart';
+import 'package:supabase_auth/screens/reservasi/reservasi-view.dart';
 import 'package:supabase_auth/supabase_state/auth_require_state.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:supabase_auth/repository/user.dart';
@@ -23,9 +22,10 @@ class _DashboardScreenState extends AuthRequiredState<DashboardScreen> {
 
   static const List<Widget> _widgetOptions = <Widget>[
     HomePage(),
-    ReservasiPage(),
-    NotifikasiPage(),
-    PaymentScreen(),
+    ReservasiView(
+      bookings: [],
+    ),
+    ProfilePage(),
   ];
 
   void _onItemTapped(int index) {
@@ -68,8 +68,6 @@ class _DashboardScreenState extends AuthRequiredState<DashboardScreen> {
             BottomNavigationBarItem(icon: Icon(Icons.home), label: ''),
             BottomNavigationBarItem(
                 icon: Icon(Icons.calendar_today), label: ''),
-            BottomNavigationBarItem(
-                icon: Icon(Icons.notifications_none), label: ''),
             BottomNavigationBarItem(icon: Icon(Icons.person), label: ''),
           ],
           currentIndex: _selectedIndex,

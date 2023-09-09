@@ -69,15 +69,31 @@
                     <p class="text-center small">Masuk ke akun admin</p>
                   </div>
 
+                  <form class="row g-3 needs-validation" method="POST" action="{{ route('login.store') }}" novalidate>
 
-                  <div class="col-12">
-                    <a href="{{ route('login.google') }}" class="btn btn-primary w-100">
-                      <i class="bi bi-google"></i> Login dengan Google
-                    </a>
-                  </div>
+
+<div class="col-12">
+  <label for="yourUsername" class="form-label">Email</label>
+  <div class="input-group has-validation">
+    <input type="text" name="email" class="form-control" id="email" required>
+    <div class="invalid-feedback">Masukkan email</div>
+  </div>
+</div>
+
+<div class="col-12">
+  <label for="yourPassword" class="form-label">Password</label>
+  <input type="password" name="password" class="form-control" id="passwrod" required>
+  <div class="invalid-feedback">Masukkan kata sandi</div>
+</div>
+
+  <button class="btn btn-primary w-100" type="submit">Login</button>
+</div>
+<div class="col-12">
+                      <p class="small mb-0">Belum punya akun?<a href="{{ route ('register.view')}}">Buat akun</a></p>
+                    </div>
+                  </form>
+
                 </div>
-              </div>
-
             </div>
           </div>
         </div>

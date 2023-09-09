@@ -3,11 +3,16 @@ import 'package:flutter/material.dart';
 import 'package:supabase_auth/core/app_export.dart';
 import 'package:supabase_auth/widgets/custom_button.dart';
 
+import '../../../controllers/images.dart';
 import '../../../theme/app_style.dart';
 
 class SplashScreenFourScreen extends GetWidget<SplashScreenFourController> {
+  const SplashScreenFourScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
+    ImagesController imagesController = Get.put(ImagesController());
+    imagesController.fetchGambar();
     return SafeArea(
       child: Scaffold(
         extendBody: true,
@@ -144,27 +149,38 @@ class SplashScreenFourScreen extends GetWidget<SplashScreenFourController> {
                     ),
                   ),
                 ),
-                CustomImageView(
-                  imagePath: ImageConstant.imgSplashscreen,
-                  height: getSize(
-                    283,
-                  ),
-                  width: getSize(
-                    283,
-                  ),
-                  margin: getMargin(
-                    top: 25,
-                  ),
+                Obx(
+                  () {
+                    if (imagesController.isLoading.value) {
+                      return const CircularProgressIndicator();
+                    } else {
+                      if (imagesController.gambar.isNotEmpty) {
+                        final imageUrl = imagesController
+                            .gambar[3].image; // Use imagesController.gambar[0]
+
+                        return Align(
+                          alignment: Alignment.center,
+                          child: Image.network(
+                            imageUrl ?? '',
+                            height: 100,
+                            width: 100,
+                          ),
+                        );
+                      } else {
+                        return const Text('No images found.');
+                      }
+                    }
+                  },
                 ),
+                // SizedBox(
+                //   height: getVerticalSize(
+                //     20,
+                //   ),
                 CustomButton(
-                  height: getVerticalSize(
-                    44,
-                  ),
                   text: "msg_masuk_dengan_google".tr,
                   margin: getMargin(
-                    left: 4,
-                    top: 34,
-                    right: 3,
+                    left: 2,
+                    right: 1,
                     bottom: 5,
                   ),
                   variant: ButtonVariant.outlinePink300,

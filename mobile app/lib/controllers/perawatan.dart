@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_auth/models/categories.dart';
@@ -23,6 +24,7 @@ class PerawatanController extends GetxController {
   RxList<Perawatan> perawatanByCategory = RxList<Perawatan>([]);
   RxList<Perawatan> selectedPerawatan = RxList<Perawatan>([]);
   final kategori = <Category>[].obs;
+  final estimasi = <Perawatan>[].obs;
   final selectedCategory = Rx<Category?>(null);
   RxBool isLoadingg = false.obs;
   //SECTION - data untuk checkout
@@ -129,32 +131,55 @@ class PerawatanController extends GetxController {
     calculateTotal();
   }
 
-  Future<void> addCartItem(Perawatan item) async {
+  Future<void> addCartItem(Perawatan item, {double? hargaDP}) async {
     final prefs = await SharedPreferences.getInstance();
 
-    // Check if the item already exists in the cart
-    if (cartItems.contains(item)) {
-      // Item already exists, do not add it again
-      return;
+    // Hitung estimasi total dari semua item dalam keranjang
+    int estimasiTotalSaatIni = 0;
+    for (final cartItem in cartItems) {
+      estimasiTotalSaatIni += cartItem.estimasi!;
     }
 
-    // Add the new item to the cartItems list
-    cartItems.add(item);
+    // Hitung estimasi total setelah menambahkan item baru
+    int estimasiTotalBaru = estimasiTotalSaatIni + item.estimasi!;
 
-    // Convert List<Perawatan> to List<String>
-    final cartStringList =
-        cartItems.map((item) => jsonEncode(item.toJson())).toList();
+    // Periksa apakah estimasi total baru melebihi batas maksimal yang diizinkan (60 menit)
+    if (estimasiTotalBaru <= 60) {
+      // Tambahkan item baru ke daftar cartItems dengan opsi harga yang dipilih (harga DP atau harga penuh)
+      if (cartItems.contains(item)) {
+        // Item sudah ada, jadi tidak perlu menambahkannya lagi
+        return;
+      }
 
-    // Update cart in SharedPreferences
-    await prefs.setStringList('cart', cartStringList);
+      if (hargaDP == null) {
+        hargaDP = item.hargaDP ?? item.hargaPerawatan!;
+      }
 
-    // Update the selectedPerawatan list
-    selectedPerawatan.add(item);
+      cartItems.add(item.copyWith(hargaDP: hargaDP!));
 
-    cartCount.value++;
-    item.isAddedToCart = true;
+      // Ubah List<Perawatan> menjadi List<String>
+      final cartStringList =
+          cartItems.map((item) => jsonEncode(item.toJson())).toList();
 
-    calculateTotal();
+      // Perbarui cart di SharedPreferences
+      await prefs.setStringList('cart', cartStringList);
+
+      // Perbarui daftar selectedPerawatan
+      selectedPerawatan.add(item);
+
+      cartCount.value++;
+      item.isAddedToCart = true;
+
+      calculateTotal();
+    } else {
+      // Tampilkan pesan kesalahan jika estimasi total melebihi batas maksimal
+      Get.snackbar(
+        'Error',
+        'Estimasi total dari layanan yang dipilih melebihi batas maksimal (60 menit).',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    }
   }
 
   loadPerawatanCart() async {
@@ -173,16 +198,28 @@ class PerawatanController extends GetxController {
     }
   }
 
+  void fetchEstimasi() async {
+    try {
+      final result = await perawatanRepository.getEstimasi();
+      estimasi.assignAll(result);
+      print(estimasi);
+    } catch (e) {
+      print("Error fetching estimasi: $e");
+    }
+  }
+
   void calculateTotal() {
     if (cartItems.isEmpty) {
       total.value = '0'; // Set the total to 0 when the cart is empty
       return;
     }
+
     double totalSum = 0;
 
     for (Perawatan item in cartItems) {
-      double hargaPerawatan = item.hargaPerawatan?.toDouble() ?? 0;
-      totalSum += hargaPerawatan;
+      double harga =
+          item.hargaDP != null ? item.hargaDP! : item.hargaPerawatan!;
+      totalSum += harga;
     }
 
     total.value = totalSum.toStringAsFixed(0);
